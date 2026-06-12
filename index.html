@@ -202,7 +202,42 @@
      2장의 트라이톤이 사인파로는 생각보다 멀쩡하게 들렸던 이유이기도 합니다.</p>
 </div>
 
-<h2><span class="no">5</span>12음정 총정리 — 연분수가 말해주는 협화도</h2>
+<h2><span class="no">5</span>배음렬과 흐미 — 한 사람이 두 음을 내는 법</h2>
+<div class="card">
+  <h3>① 모든 음 속에는 유리수 사다리가 숨어 있다</h3>
+  <p>현이든 성대든, 기본 주파수 f로 진동하는 것은 사실 <b>f, 2f, 3f, 4f, …</b> 정수배의
+     배음(harmonics)을 동시에 울립니다. 이 페이지 내내 등장한 정수비의 물리적 기원이 여기입니다 —
+     3/2, 5/4 같은 비율은 누가 발명한 게 아니라 <b>하나의 음 안에 이미 들어 있는</b> 간격입니다.</p>
+  <p style="font-size:.9rem;color:var(--dim)">아래 눈금자는 가로축이 로그 주파수(= 음높이)입니다.
+     평균율 반음(회색 눈금)과 비교해 보세요. 배음 2·3·4·6·8·12번은 건반 위에 거의 정확히 내려앉지만,
+     <b style="color:var(--accent2)">7·11·13번은 건반 사이에</b> 떨어집니다 — 평균율이 포기한 유리수들입니다.</p>
+  <canvas id="hmRuler" style="height:170px"></canvas>
+  <div style="overflow-x:auto;margin-top:12px"><table id="hmTable"></table></div>
+</div>
+<div class="card" style="margin-top:14px">
+  <h3>② 몽골 흐미(Хөөмий) — 배음을 ‘골라내는’ 노래</h3>
+  <p>몽골·투바의 전통 창법 <b>흐미</b>는 한 사람이 낮은 드론과 휘파람 같은 멜로디,
+     두 음을 동시에 내는 것처럼 들립니다. 비밀은 새로운 음을 내는 것이 아닙니다:</p>
+  <p>성대는 <b>낮은 드론 하나만</b> 냅니다. 그 드론 속에 이미 들어 있는 배음들 중에서,
+     가수가 혀와 입술로 입안의 공명강(포먼트)을 정밀하게 조정해
+     <b>특정 배음 하나만 크게 증폭</b>하는 것입니다. 멜로디는 ‘새로 낸 음’이 아니라
+     ‘원래 있던 배음을 골라낸 것’ — 살아 있는 푸리에 필터인 셈입니다.</p>
+  <p style="font-size:.92rem;color:var(--dim)">그래서 어떤 음이 들리는지는 가수가 아니라 <b>정수가 결정</b>합니다.
+     기본음이 ‘도’라면 멜로디로 쓰는 6~13번 배음은
+     솔(6) · 자연7도(7, 시♭보다 31¢ 낮음) · 도(8) · 레(9) · 미(10) · 파♯ 근처(11) · 솔(12) · 솔♯와 라 사이(13).
+     흐미 멜로디가 5음음계처럼 들리는 이유, 그리고 어딘가 ‘건반과 다르게’ 들리는 이유가
+     전부 n/2ᵏ 꼴 유리수에서 나옵니다.</p>
+  <p style="font-size:.92rem">직접 해보세요. 드론을 켜고 슬라이더(= 혀의 위치, 공명 주파수)를 <b>연속으로</b>
+     움직여 보세요. 필터는 연속으로 움직이는데 <b>들리는 멜로디는 정수 배음에서 정수 배음으로만 점프</b>합니다 —
+     그 사이의 주파수에는 증폭할 것이 없기 때문입니다. 자연이 멜로디를 양자화하는 순간입니다.</p>
+  <button class="play" id="droneBtn">▶ 드론 시작 (도, 130.8 Hz)</button>
+  <input type="range" id="hmSlider" min="2" max="13" step="0.01" value="6" style="width:100%">
+  <p id="hmLabel" style="font-family:var(--mono);font-size:.92rem"></p>
+  <p style="font-size:.82rem;color:var(--dim)">위 눈금자의 주황 선이 현재 공명 위치입니다.
+     ①의 표에서 행을 눌러 특정 배음으로 바로 이동할 수도 있습니다.</p>
+</div>
+
+<h2><span class="no">6</span>12음정 총정리 — 연분수가 말해주는 협화도</h2>
 <div class="card" style="overflow-x:auto">
   <table id="summaryTable"></table>
   <p style="font-size:.82rem;color:var(--dim);margin-top:10px">
@@ -210,7 +245,7 @@
     분수가 단순할수록 두 파형이 빨리 다시 만나며, 음악 이론의 전통적 협화도 분류와 거의 일치합니다.</p>
 </div>
 
-<h2><span class="no">6</span>화음 도감 — 구성음 사이의 정수비와 파형</h2>
+<h2><span class="no">7</span>화음 도감 — 구성음 사이의 정수비와 파형</h2>
 <p style="color:var(--dim);font-size:.92rem">각 화음의 구성음을 유리수로 근사한 뒤 통분하면 화음 전체가 하나의
    <b>정수비</b>가 됩니다(장3화음 = 4:5:6). 파형은 그 정수비 사인파들의 합으로, 캔버스 가로 전체가 정확히 <b>한 주기</b>입니다.
    정수가 작을수록 근음이 몇 번만 진동해도 패턴이 반복되어 안정적으로 들립니다.
@@ -218,7 +253,7 @@
 <div class="presets" id="chordPills" style="justify-content:flex-start"></div>
 <div class="chordgrid" id="chordGrid"></div>
 
-<h2><span class="no">7</span>피타고라스 콤마 — 순정률은 영원히 닫히지 않는다</h2>
+<h2><span class="no">8</span>피타고라스 콤마 — 순정률은 영원히 닫히지 않는다</h2>
 <div class="card">
   <p>가장 완벽한 음정인 순정 5도(3/2)만 쌓아서 음계를 지을 수는 없을까요?
      5도 12번이면 거의 7옥타브이니 한 바퀴 돌아 제자리에 와야 합니다. 그런데:</p>
@@ -246,7 +281,7 @@
      초당 약 3.6회의 맥놀이가 들립니다 — 4장에서 배운 바로 그 현상입니다.</p>
 </div>
 
-<h2><span class="no">8</span>다른 음계들 — 옥타브를 꼭 12등분해야 할까?</h2>
+<h2><span class="no">9</span>다른 음계들 — 옥타브를 꼭 12등분해야 할까?</h2>
 <div class="card">
   <p style="color:var(--dim);font-size:.92rem;margin-top:0">옥타브를 N등분하는 평균율을 <b>N-EDO</b>라 부릅니다.
      좋은 음계란 적은 음 개수로 3/2, 5/4 같은 <b>단순한 유리수를 동시에 잘 근사</b>하는 음계입니다.
@@ -261,7 +296,7 @@
   <div style="overflow-x:auto;max-height:430px"><table id="edoSteps"></table></div>
 </div>
 
-<h2><span class="no">9</span>왜 하필 12인가 — 증명할 수 있을까?</h2>
+<h2><span class="no">10</span>왜 하필 12인가 — 증명할 수 있을까?</h2>
 <div class="card">
   <h3>① 음계 찾기 = 무리수 근사 게임</h3>
   <p>N등분 음계가 쓸 만한 완전5도를 가지려면 어떤 단계 k에서
@@ -306,7 +341,7 @@
   </div>
   <p style="font-size:.88rem;color:var(--dim)">B(N)이 낮을수록 “음 하나당 근사 효율”이 좋은 음계입니다.
      N을 곱하는 것은 위 정리의 |q·α − p| (= q × 오차)와 같은 정신 — 디오판토스 근사에서 표준적인 방식입니다.
-     어떤 순정비까지 욕심내는지(리미트)에 따라 승자가 바뀝니다. 막대를 클릭하면 위 8장에서 그 음계를 분석합니다.</p>
+     어떤 순정비까지 욕심내는지(리미트)에 따라 승자가 바뀝니다. 막대를 클릭하면 위 9장에서 그 음계를 분석합니다.</p>
   <div class="presets" id="limitBtns" style="justify-content:flex-start;margin-bottom:6px"></div>
   <canvas id="badnessChart" style="height:230px;cursor:pointer"></canvas>
   <div class="wavecap" id="badnessCap"></div>
@@ -660,7 +695,7 @@ function renderEDO(n) {
     b.classList.toggle('active', +b.dataset.n === n));
   const known = EDOS.find(e => e.n === n);
   document.getElementById('edoDesc').textContent =
-    known ? known.desc : n + '-EDO — 옥타브를 ' + n + '등분한 음계입니다. 9장의 차트에서 선택했습니다.';
+    known ? known.desc : n + '-EDO — 옥타브를 ' + n + '등분한 음계입니다. 10장의 차트에서 선택했습니다.';
   const step = 1200 / n;
   // 주요 순정비 적중표
   let t1 = `<tr><th>순정비</th><th>이름</th><th>가까운 단계</th><th>단계 값</th><th>오차</th><th>평가</th></tr>`;
@@ -779,7 +814,7 @@ function renderBadness() {
   };
 
   document.getElementById('badnessCap').textContent =
-    '가성비 B(N) = N × RMS오차, N = 2…60 (낮을수록 좋음 · 주황 = 그때까지의 신기록 · 막대 클릭 = 8장에서 분석)';
+    '가성비 B(N) = N × RMS오차, N = 2…60 (낮을수록 좋음 · 주황 = 그때까지의 신기록 · 막대 클릭 = 9장에서 분석)';
   const top = [...data].sort((a, b) => a.B - b.B).slice(0, 8);
   let t = `<tr><th>순위</th><th>N</th><th>RMS 오차</th><th>가성비 B(N)</th><th>비고</th></tr>`;
   top.forEach((d, i) => {
@@ -992,6 +1027,128 @@ function renderBadness() {
   const fComma = BASE * Math.pow(1.5, 12) / Math.pow(2, 7); // ≈ BASE × 1.0136
   document.getElementById('commaPlay').onclick = () => playFreqs([BASE, fComma], 3.5, true);
   document.getElementById('commaRef').onclick = () => playFreqs([BASE, BASE], 3.5, true);
+})();
+
+/* ───────────────────── 배음렬과 흐미(배음 창법) ───────────────────── */
+(function buildOvertone() {
+  const FD = 130.81; // 드론 기본음: 도3
+  const NMAX = 13;
+  const slider = document.getElementById('hmSlider');
+  const label = document.getElementById('hmLabel');
+  const canvas = document.getElementById('hmRuler');
+  const btn = document.getElementById('droneBtn');
+
+  // n번 배음을 옥타브 안으로 접었을 때의 정보
+  function noteInfo(n) {
+    const c = (1200 * Math.log2(n)) % 1200;
+    const s = Math.round(c / 100);
+    return { name: NOTE_KO[s % 12], diff: c - s * 100 };
+  }
+  const octRatio = n => {
+    const d = Math.pow(2, Math.floor(Math.log2(n)));
+    return d === n ? '1/1' : n + '/' + d;
+  };
+
+  // 배음 눈금자 (가로축 = 로그 주파수, 1~13번)
+  const xOf = (n, w) => Math.log2(n) / Math.log2(NMAX + 1.5) * w;
+  function drawRuler() {
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth, h = canvas.clientHeight || 170;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    const c = canvas.getContext('2d'); c.scale(dpr, dpr);
+    c.clearRect(0, 0, w, h);
+    const base = h - 30;
+    // 평균율 반음 눈금 (로그축에서 등간격)
+    c.strokeStyle = 'rgba(139,150,168,.18)';
+    for (let s = 0; s <= 12 * Math.log2(NMAX + 1.5); s++) {
+      const px = s / 12 / Math.log2(NMAX + 1.5) * w;
+      c.beginPath(); c.moveTo(px, base - h * 0.62); c.lineTo(px, base); c.stroke();
+    }
+    c.strokeStyle = '#2b3344';
+    c.beginPath(); c.moveTo(0, base); c.lineTo(w, base); c.stroke();
+    // 현재 공명 위치 (주황 선)
+    const hPos = +slider.value;
+    c.strokeStyle = 'rgba(255,180,84,.9)'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(xOf(hPos, w), base - h * 0.7); c.lineTo(xOf(hPos, w), base); c.stroke();
+    c.lineWidth = 1;
+    // 배음 막대 (높이 ∝ 진폭 1/n)
+    c.font = '10px ui-monospace,monospace'; c.textAlign = 'center';
+    for (let n = 1; n <= NMAX; n++) {
+      const i = noteInfo(n);
+      const off = Math.abs(i.diff) > 15;     // 건반 사이에 떨어지는 배음
+      const px = xOf(n, w), bh = h * 0.62 / n + 12;
+      c.strokeStyle = off ? '#ffb454' : '#7c9cff'; c.lineWidth = 2.5;
+      c.beginPath(); c.moveTo(px, base - bh); c.lineTo(px, base); c.stroke();
+      c.fillStyle = off ? '#ffb454' : '#9db4e8';
+      c.fillText(i.name, px, base - bh - 8);
+      c.fillStyle = '#8b96a8';
+      c.fillText(n, px, base + 12);
+    }
+    c.fillStyle = '#8b96a8'; c.textAlign = 'left';
+    c.fillText('배음 번호 →  (가로축 = 로그 주파수, 회색 눈금 = 평균율 반음)', 6, 14);
+  }
+  drawRuler();
+  registerDraw(canvas, drawRuler);
+
+  // 배음표
+  let t = `<tr><th>배음 n</th><th>주파수</th><th>옥타브 안 비율</th><th>도 기준 음</th><th>평균율과 차이</th></tr>`;
+  for (let n = 1; n <= NMAX; n++) {
+    const i = noteInfo(n);
+    const off = Math.abs(i.diff) > 15;
+    t += `<tr class="clickable" data-n="${n}"${off ? ' style="background:#241c12"' : ''}>
+      <td>${n}</td><td>${(FD * n).toFixed(0)} Hz</td><td><b>${octRatio(n)}</b></td>
+      <td style="font-family:inherit">${i.name}${off ? ' 근처' : ''}</td>
+      <td>${i.diff >= 0 ? '+' : ''}${i.diff.toFixed(1)}¢</td></tr>`;
+  }
+  const tbl = document.getElementById('hmTable');
+  tbl.innerHTML = t;
+
+  // 드론 신디사이저: 톱니파(배음 풍부) → 이중 밴드패스(= 입안의 포먼트)
+  let drone = null;
+  function setFormant(hNum) {
+    if (!drone) return;
+    const f = FD * hNum;
+    [drone.bp1, drone.bp2].forEach(bp =>
+      bp.frequency.setTargetAtTime(f, actx.currentTime, 0.03));
+    drone.wet.gain.setTargetAtTime(Math.min(6, 1.2 * hNum), actx.currentTime, 0.05);
+  }
+  btn.onclick = () => {
+    if (drone) {
+      drone.master.gain.setTargetAtTime(0.0001, actx.currentTime, 0.1);
+      drone.osc.stop(actx.currentTime + 0.4);
+      drone = null;
+      btn.textContent = '▶ 드론 시작 (도, 130.8 Hz)';
+      return;
+    }
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    const osc = actx.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = FD;
+    const dry = actx.createGain(); dry.gain.value = 0.05;
+    const bp1 = actx.createBiquadFilter(); bp1.type = 'bandpass'; bp1.Q.value = 18;
+    const bp2 = actx.createBiquadFilter(); bp2.type = 'bandpass'; bp2.Q.value = 18;
+    const wet = actx.createGain();
+    const master = actx.createGain(); master.gain.value = 0.3;
+    osc.connect(dry); dry.connect(master);
+    osc.connect(bp1); bp1.connect(bp2); bp2.connect(wet); wet.connect(master);
+    master.connect(actx.destination);
+    osc.start();
+    drone = { osc, bp1, bp2, wet, master };
+    setFormant(+slider.value);
+    btn.textContent = '■ 드론 정지';
+  };
+
+  function renderLabel() {
+    const hPos = +slider.value, n = Math.round(hPos);
+    const i = noteInfo(n);
+    label.innerHTML = `공명 위치: 배음 ${hPos.toFixed(2)} 부근 → 들리는 음: <b>${n}번 배음</b> ` +
+      `(${octRatio(n)}, ${i.name}${Math.abs(i.diff) > 15 ? ' 근처' : ''}, ${i.diff >= 0 ? '+' : ''}${i.diff.toFixed(1)}¢)`;
+  }
+  slider.oninput = () => { renderLabel(); drawRuler(); setFormant(+slider.value); };
+  tbl.querySelectorAll('tr.clickable').forEach(tr => tr.onclick = () => {
+    slider.value = tr.dataset.n;
+    slider.oninput();
+  });
+  renderLabel();
 })();
 
 /* ───────────────────────── 화음 카드 ───────────────────────── */
