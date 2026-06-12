@@ -63,6 +63,9 @@
   .result{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media(max-width:760px){.result{grid-template-columns:1fr}}
   .bigratio{font-family:var(--mono);font-size:2rem;color:var(--accent2);margin:4px 0}
+  .logline{font-family:var(--mono);font-size:.92rem;background:var(--panel2);
+    border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin:6px 0 2px}
+  .logline b{color:var(--accent)}
   .verdict{display:inline-block;border-radius:999px;padding:3px 14px;font-size:.82rem;font-weight:700;margin-left:8px}
   table{border-collapse:collapse;width:100%;font-size:.88rem}
   th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);font-family:var(--mono)}
@@ -396,8 +399,9 @@ function renderInterval(keepChoice = false) {
   const k = hi - lo;
   const ratio = Math.pow(2, k / 12);
   const cf = contFrac(ratio);
-  const cv = convergents(cf).filter(([p, q]) => !(p === q)); // 1/1 같은 자명한 건 정리
+  let cv = convergents(cf).filter(([p, q]) => !(p === q)); // 1/1 같은 자명한 건 정리
   if (!cv.length) cv.push([2, 1]);
+  cv = cv.slice(0, 5); // 모바일 너비를 위해 근사는 5개까지만
   const rec = bestRatio(ratio);
   const sel = chosenPQ || rec;
   const [name, cls] = CONSONANCE[k] || ['—', 'c-ok'];
@@ -420,6 +424,9 @@ function renderInterval(keepChoice = false) {
       <h3>${NOTE_KO[lo]} – ${NOTE_KO[hi]} <small style="color:var(--dim)">(${NOTE_EN[lo]}–${NOTE_EN[hi]}, 반음 ${k}개)</small></h3>
       <p>${INTERVAL_NAME[k] || ''} <span class="verdict ${cls}">${name}</span></p>
       <div class="bigratio">2<sup style="font-size:.55em">${k}/12</sup> = ${ratio.toFixed(6)}…</div>
+      <div class="logline">12·log₂(${sel.p}/${sel.q}) = <b>${(12 * Math.log2(sel.p / sel.q)).toFixed(3)}</b>
+        — 정수 ${k}와의 차이 ${Math.abs(12 * Math.log2(sel.p / sel.q) - k).toFixed(3)}반음
+        (${Math.abs(sel.err).toFixed(1)}¢). 정수에 가까울수록 평균율이 이 순정비를 잘 흉내냅니다.</div>
       <p>주파수: ${fLo.toFixed(1)} Hz / ${fHi.toFixed(1)} Hz</p>
       <p style="margin-top:12px;color:var(--text)">연분수 전개</p>
       <div class="cfbox">${cfHTML(cf)}<br><br>= ${cfBracket(cf)}</div>
@@ -430,10 +437,12 @@ function renderInterval(keepChoice = false) {
     </div>
     <div class="card">
       <h3>유리수 근사 (convergents) — 행을 눌러 파형 비교</h3>
+      <div style="overflow-x:auto">
       <table>
         <tr><th>분수 p/q</th><th>값</th><th>평균율과의 오차</th><th>복잡도 p×q</th></tr>
         ${rows}
       </table>
+      </div>
       <div style="margin-top:14px">
         <canvas id="waveIv" style="height:150px"></canvas>
         <div class="wavecap">두 사인파(옅은 색)와 그 합(흰색) — 가로 전체가 정확히 한 주기:
