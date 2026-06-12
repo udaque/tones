@@ -59,6 +59,7 @@
   button.play{background:linear-gradient(135deg,#2b3a6b,#1e2a4f);border-color:#3d5fd6}
   button.play:hover{color:#fff;border-color:var(--accent)}
   button.active{border-color:var(--accent2);color:var(--accent2);background:#2a2316;font-weight:700}
+  input[type=range]{accent-color:var(--accent);margin:14px 0 6px}
 
   /* 결과 패널 */
   .result{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -168,7 +169,40 @@
   <p><button id="goTritone" class="play">▶ 위 탐색기에서 파–시 직접 보기</button></p>
 </div>
 
-<h2><span class="no">4</span>12음정 총정리 — 연분수가 말해주는 협화도</h2>
+<h2><span class="no">4</span>맥놀이 — 불협화가 ‘들리는’ 메커니즘</h2>
+<div class="card">
+  <h3>① 두 사인파의 합은 ‘출렁이는’ 하나의 사인파</h3>
+  <p>왜 복잡한 비율이 거칠게 들릴까요? 삼각함수 항등식 하나가 출발점입니다:</p>
+  <p class="math" style="text-align:center;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px">
+     sin(2πf₁t) + sin(2πf₂t) = 2·cos(2π·<b style="color:var(--accent2)">(f₁−f₂)/2</b>·t)·sin(2π·(f₁+f₂)/2·t)</p>
+  <p style="font-size:.92rem;color:var(--dim)">가까운 두 음의 합은 “평균 주파수의 음 하나가 초당 |f₁−f₂|번
+     커졌다 작아졌다 하는 소리”와 같습니다. 이 출렁임이 <b>맥놀이</b>입니다.
+     초당 1~5번이면 부드러운 떨림, 20~30번 부근이면 윙윙대는 <b>거칢(불협화의 정체)</b>,
+     더 멀어지면 그제서야 두 개의 음으로 분리되어 들립니다.</p>
+  <input type="range" id="beatSlider" min="0" max="30" step="0.5" value="4" style="width:100%">
+  <p id="beatLabel" style="font-family:var(--mono);font-size:.92rem"></p>
+  <canvas id="beatWave" style="height:150px"></canvas>
+  <div class="wavecap">1초 구간의 합성 파형 — 진폭의 봉우리(엔벨로프)가 초당 |f₁−f₂|번 출렁입니다</div>
+  <button class="play" id="beatPlay" style="margin-top:10px">▶ 3초간 듣기</button>
+</div>
+<div class="card" style="margin-top:14px">
+  <h3>② 불협화 곡선 — 골짜기가 파이는 자리가 곧 단순한 유리수</h3>
+  <p style="font-size:.92rem;color:var(--dim)">실제 악기 음은 배음(f, 2f, 3f, …)을 갖습니다.
+     두 음의 <b>모든 배음 쌍</b>이 만드는 거칢을 심리음향 모델(Plomp–Levelt)로 합산하면
+     음정 간격에 대한 불협화 곡선이 나옵니다. 골짜기들이 평균율 눈금(회색 세로선)이 아니라
+     <b>3/2, 4/3, 5/4 같은 단순 유리수 위치에</b> 정확히 파입니다.
+     곡선을 클릭·드래그하거나 슬라이더를 움직여, 평균율 건반 사이의 무리수 영역까지
+     <b>연속으로</b> 탐험해 보세요.</p>
+  <canvas id="dissCurve" style="height:230px;cursor:crosshair"></canvas>
+  <input type="range" id="dissSlider" min="0" max="1200" step="1" value="702" style="width:100%">
+  <p id="dissLabel" style="font-family:var(--mono);font-size:.92rem"></p>
+  <button class="play" id="dissPlay">▶ 이 간격 듣기 (배음 포함 음색)</button>
+  <p style="font-size:.82rem;color:var(--dim);margin-top:10px">참고: 배음 없는 순수 사인파 두 개로는 골짜기가
+     거의 생기지 않습니다. 협화는 ‘단순한 유리수’와 ‘배음’의 합작품입니다 —
+     2장의 트라이톤이 사인파로는 생각보다 멀쩡하게 들렸던 이유이기도 합니다.</p>
+</div>
+
+<h2><span class="no">5</span>12음정 총정리 — 연분수가 말해주는 협화도</h2>
 <div class="card" style="overflow-x:auto">
   <table id="summaryTable"></table>
   <p style="font-size:.82rem;color:var(--dim);margin-top:10px">
@@ -176,7 +210,7 @@
     분수가 단순할수록 두 파형이 빨리 다시 만나며, 음악 이론의 전통적 협화도 분류와 거의 일치합니다.</p>
 </div>
 
-<h2><span class="no">5</span>화음 도감 — 구성음 사이의 정수비와 파형</h2>
+<h2><span class="no">6</span>화음 도감 — 구성음 사이의 정수비와 파형</h2>
 <p style="color:var(--dim);font-size:.92rem">각 화음의 구성음을 유리수로 근사한 뒤 통분하면 화음 전체가 하나의
    <b>정수비</b>가 됩니다(장3화음 = 4:5:6). 파형은 그 정수비 사인파들의 합으로, 캔버스 가로 전체가 정확히 <b>한 주기</b>입니다.
    정수가 작을수록 근음이 몇 번만 진동해도 패턴이 반복되어 안정적으로 들립니다.
@@ -184,7 +218,35 @@
 <div class="presets" id="chordPills" style="justify-content:flex-start"></div>
 <div class="chordgrid" id="chordGrid"></div>
 
-<h2><span class="no">6</span>다른 음계들 — 옥타브를 꼭 12등분해야 할까?</h2>
+<h2><span class="no">7</span>피타고라스 콤마 — 순정률은 영원히 닫히지 않는다</h2>
+<div class="card">
+  <p>가장 완벽한 음정인 순정 5도(3/2)만 쌓아서 음계를 지을 수는 없을까요?
+     5도 12번이면 거의 7옥타브이니 한 바퀴 돌아 제자리에 와야 합니다. 그런데:</p>
+  <p class="math" style="text-align:center;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px">
+     (3/2)¹² = 531441/4096 ≈ <b style="color:var(--accent2)">129.746</b>
+     &nbsp;&nbsp;vs&nbsp;&nbsp; 2⁷ = <b style="color:var(--accent2)">128</b></p>
+  <p>이 어긋남 531441/524288 ≈ 1.0136, 약 <b>23.46센트</b>(반음의 1/4!)가
+     <b>피타고라스 콤마</b>입니다. 그리고 이것은 우연이 아니라 필연입니다:</p>
+  <div class="callout" style="border-left-color:var(--good);background:#12201a">
+    <h3 style="color:var(--good)">한 줄 증명</h3>
+    <p>(3/2)ᵃ = 2ᵇ인 자연수 a, b가 있다면 3ᵃ = 2ᵃ⁺ᵇ.
+       그런데 좌변은 홀수, 우변은 짝수 — 모순.
+       따라서 <b>순정 5도는 몇 번을 쌓아도 옥타브와 정확히 만나지 못합니다.</b>
+       순정률만으로 닫힌 음계는 수학적으로 불가능하고, 어딘가에서 5도를 좁히는 타협이 필요합니다.
+       그 타협을 12개의 5도에 2센트씩 공평하게 나눠 갖게 한 것이 바로 평균율입니다.</p>
+  </div>
+  <canvas id="commaSpiral" style="height:340px;margin-top:14px"></canvas>
+  <div class="wavecap">5도 나선: 순정 5도(파란 점)를 12번 쌓으면 시작점 ‘도’로 돌아오지 못하고
+     7.04°(=23.46¢)만큼 지나칩니다(빨간 호). 바깥 회색 눈금은 평균율 12음 — 평균율은 정확히 닫힙니다.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+    <button class="play" id="commaPlay">▶ 콤마 듣기: 5도 12번의 ‘도’ vs 원래 ‘도’</button>
+    <button class="play" id="commaRef">▶ 비교: 완전히 같은 두 ‘도’</button>
+  </div>
+  <p style="font-size:.82rem;color:var(--dim);margin-top:10px">두 ‘도’의 비가 1.0136이라
+     초당 약 3.6회의 맥놀이가 들립니다 — 4장에서 배운 바로 그 현상입니다.</p>
+</div>
+
+<h2><span class="no">8</span>다른 음계들 — 옥타브를 꼭 12등분해야 할까?</h2>
 <div class="card">
   <p style="color:var(--dim);font-size:.92rem;margin-top:0">옥타브를 N등분하는 평균율을 <b>N-EDO</b>라 부릅니다.
      좋은 음계란 적은 음 개수로 3/2, 5/4 같은 <b>단순한 유리수를 동시에 잘 근사</b>하는 음계입니다.
@@ -199,7 +261,7 @@
   <div style="overflow-x:auto;max-height:430px"><table id="edoSteps"></table></div>
 </div>
 
-<h2><span class="no">7</span>왜 하필 12인가 — 증명할 수 있을까?</h2>
+<h2><span class="no">9</span>왜 하필 12인가 — 증명할 수 있을까?</h2>
 <div class="card">
   <h3>① 음계 찾기 = 무리수 근사 게임</h3>
   <p>N등분 음계가 쓸 만한 완전5도를 가지려면 어떤 단계 k에서
@@ -244,7 +306,7 @@
   </div>
   <p style="font-size:.88rem;color:var(--dim)">B(N)이 낮을수록 “음 하나당 근사 효율”이 좋은 음계입니다.
      N을 곱하는 것은 위 정리의 |q·α − p| (= q × 오차)와 같은 정신 — 디오판토스 근사에서 표준적인 방식입니다.
-     어떤 순정비까지 욕심내는지(리미트)에 따라 승자가 바뀝니다. 막대를 클릭하면 위 6장에서 그 음계를 분석합니다.</p>
+     어떤 순정비까지 욕심내는지(리미트)에 따라 승자가 바뀝니다. 막대를 클릭하면 위 8장에서 그 음계를 분석합니다.</p>
   <div class="presets" id="limitBtns" style="justify-content:flex-start;margin-bottom:6px"></div>
   <canvas id="badnessChart" style="height:230px;cursor:pointer"></canvas>
   <div class="wavecap" id="badnessCap"></div>
@@ -350,10 +412,17 @@ function chordIntegers(semis) {
 }
 
 /* ───────────────────────── 오디오 ───────────────────────── */
-let actx = null;
-function playFreqs(freqs, dur = 1.8) {
+let actx = null, richWave = null;
+const HARMONIC_AMPS = [1, 0.8, 0.64, 0.512, 0.41, 0.328]; // 배음 6개, 0.8^(n-1)
+function playFreqs(freqs, dur = 1.8, rich = false) {
   if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
   if (actx.state === 'suspended') actx.resume();
+  if (rich && !richWave) {
+    const n = HARMONIC_AMPS.length + 1;
+    const re = new Float32Array(n), im = new Float32Array(n);
+    HARMONIC_AMPS.forEach((a, i) => im[i + 1] = a);
+    richWave = actx.createPeriodicWave(re, im);
+  }
   const t0 = actx.currentTime;
   const master = actx.createGain();
   master.gain.setValueAtTime(0, t0);
@@ -363,7 +432,8 @@ function playFreqs(freqs, dur = 1.8) {
   master.connect(actx.destination);
   freqs.forEach(f => {
     const o = actx.createOscillator();
-    o.type = 'sine'; o.frequency.value = f;
+    if (rich) o.setPeriodicWave(richWave); else o.type = 'sine';
+    o.frequency.value = f;
     o.connect(master); o.start(t0); o.stop(t0 + dur + 0.05);
   });
 }
@@ -590,7 +660,7 @@ function renderEDO(n) {
     b.classList.toggle('active', +b.dataset.n === n));
   const known = EDOS.find(e => e.n === n);
   document.getElementById('edoDesc').textContent =
-    known ? known.desc : n + '-EDO — 옥타브를 ' + n + '등분한 음계입니다. 7장의 차트에서 선택했습니다.';
+    known ? known.desc : n + '-EDO — 옥타브를 ' + n + '등분한 음계입니다. 9장의 차트에서 선택했습니다.';
   const step = 1200 / n;
   // 주요 순정비 적중표
   let t1 = `<tr><th>순정비</th><th>이름</th><th>가까운 단계</th><th>단계 값</th><th>오차</th><th>평가</th></tr>`;
@@ -709,7 +779,7 @@ function renderBadness() {
   };
 
   document.getElementById('badnessCap').textContent =
-    '가성비 B(N) = N × RMS오차, N = 2…60 (낮을수록 좋음 · 주황 = 그때까지의 신기록 · 막대 클릭 = 6장에서 분석)';
+    '가성비 B(N) = N × RMS오차, N = 2…60 (낮을수록 좋음 · 주황 = 그때까지의 신기록 · 막대 클릭 = 8장에서 분석)';
   const top = [...data].sort((a, b) => a.B - b.B).slice(0, 8);
   let t = `<tr><th>순위</th><th>N</th><th>RMS 오차</th><th>가성비 B(N)</th><th>비고</th></tr>`;
   top.forEach((d, i) => {
@@ -734,6 +804,194 @@ function renderBadness() {
     wrap.appendChild(b);
   });
   renderBadness();
+})();
+
+/* ───────────────────────── 맥놀이 데모 ───────────────────────── */
+(function buildBeats() {
+  const slider = document.getElementById('beatSlider');
+  const canvas = document.getElementById('beatWave');
+  const label = document.getElementById('beatLabel');
+  const F1 = 220;
+  function render() {
+    const df = +slider.value;
+    label.innerHTML = `f₁ = ${F1} Hz, f₂ = ${(F1 + df).toFixed(1)} Hz — 맥놀이 <b>초당 ${df.toFixed(1)}회</b>` +
+      (df === 0 ? ' (완전한 동음: 출렁임 없음)' : '');
+    const draw = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.clientWidth, h = canvas.clientHeight || 150;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      const c = canvas.getContext('2d'); c.scale(dpr, dpr);
+      c.clearRect(0, 0, w, h);
+      const mid = h / 2, amp = h * 0.44, N = 4000;
+      c.strokeStyle = '#2b3344'; c.beginPath(); c.moveTo(0, mid); c.lineTo(w, mid); c.stroke();
+      // 엔벨로프 ±2cos(πΔf t)
+      c.strokeStyle = 'rgba(255,180,84,.8)'; c.lineWidth = 1.5;
+      [1, -1].forEach(sgn => {
+        c.beginPath();
+        for (let i = 0; i <= 300; i++) {
+          const t = i / 300, y = mid - sgn * amp * Math.abs(Math.cos(Math.PI * df * t));
+          i ? c.lineTo(t * w, y) : c.moveTo(0, y);
+        }
+        c.stroke();
+      });
+      // 합성파
+      c.strokeStyle = 'rgba(124,156,255,.85)'; c.lineWidth = 1;
+      c.beginPath();
+      for (let i = 0; i <= N; i++) {
+        const t = i / N;
+        const y = mid - amp * (Math.sin(2 * Math.PI * F1 * t) + Math.sin(2 * Math.PI * (F1 + df) * t)) / 2;
+        i ? c.lineTo(t * w, y) : c.moveTo(0, y);
+      }
+      c.stroke();
+    };
+    draw();
+    registerDraw(canvas, draw);
+  }
+  slider.oninput = render;
+  document.getElementById('beatPlay').onclick = () => playFreqs([F1, F1 + +slider.value], 3);
+  render();
+})();
+
+/* ───────────────── 불협화 곡선 (Plomp–Levelt / Sethares 모델) ───────────────── */
+(function buildDissCurve() {
+  const canvas = document.getElementById('dissCurve');
+  const slider = document.getElementById('dissSlider');
+  const label = document.getElementById('dissLabel');
+  const F0 = 261.63, CMAX = 1240, PADB = 22, PADT = 14;
+  function pairRoughness(f1, f2, a1, a2) {
+    const fmin = Math.min(f1, f2);
+    const s = 0.24 / (0.0207 * fmin + 18.96);
+    const d = Math.abs(f2 - f1);
+    return a1 * a2 * (Math.exp(-3.51 * s * d) - Math.exp(-5.75 * s * d));
+  }
+  function dissAt(centsIv) {
+    const r = Math.pow(2, centsIv / 1200);
+    let D = 0;
+    HARMONIC_AMPS.forEach((a1, i) =>
+      HARMONIC_AMPS.forEach((a2, j) =>
+        D += pairRoughness(F0 * (i + 1), F0 * r * (j + 1), a1, a2)));
+    return D;
+  }
+  const curve = [];
+  for (let c = 0; c <= CMAX; c += 2) curve.push([c, dissAt(c)]);
+  const maxD = Math.max(...curve.map(p => p[1]));
+  const MARKS = [[6,5],[5,4],[4,3],[3,2],[5,3],[2,1]];
+  const x = (c, w) => c / CMAX * w;
+  function render() {
+    const cur = +slider.value;
+    const ratio = Math.pow(2, cur / 1200);
+    const b = bestRatio(ratio);
+    label.innerHTML = `간격 <b>${cur}¢</b> (반음 ${(cur / 100).toFixed(2)}개) · 비율 ${ratio.toFixed(4)}` +
+      ` · 가까운 유리수 <b>${b.p}/${b.q}</b> (${b.err >= 0 ? '+' : ''}${b.err.toFixed(1)}¢)`;
+    const draw = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.clientWidth, h = canvas.clientHeight || 230;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      const c = canvas.getContext('2d'); c.scale(dpr, dpr);
+      c.clearRect(0, 0, w, h);
+      const yOf = D => h - PADB - (h - PADB - PADT) * D / maxD;
+      // 평균율 눈금
+      c.strokeStyle = 'rgba(139,150,168,.22)'; c.lineWidth = 1;
+      c.font = '10px ui-monospace,monospace'; c.textAlign = 'center';
+      for (let s = 1; s <= 12; s++) {
+        c.beginPath(); c.moveTo(x(s * 100, w), PADT); c.lineTo(x(s * 100, w), h - PADB); c.stroke();
+        c.fillStyle = 'rgba(139,150,168,.55)';
+        c.fillText(s, x(s * 100, w), h - 8);
+      }
+      // 단순 유리수 골짜기 표시
+      MARKS.forEach(([p, q]) => {
+        const mc = cents(p / q);
+        c.strokeStyle = 'rgba(74,222,128,.45)'; c.setLineDash([3, 4]);
+        c.beginPath(); c.moveTo(x(mc, w), PADT); c.lineTo(x(mc, w), h - PADB); c.stroke();
+        c.setLineDash([]);
+        c.fillStyle = '#4ade80';
+        c.fillText(p + '/' + q, x(mc, w), PADT - 3 + 10);
+      });
+      // 곡선
+      c.strokeStyle = '#eaf0ff'; c.lineWidth = 2;
+      c.beginPath();
+      curve.forEach(([cc, D], i) => {
+        const px = x(cc, w), py = yOf(D);
+        i ? c.lineTo(px, py) : c.moveTo(px, py);
+      });
+      c.stroke();
+      // 현재 위치 마커
+      c.strokeStyle = '#ffb454'; c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(x(cur, w), PADT); c.lineTo(x(cur, w), h - PADB); c.stroke();
+      c.fillStyle = '#ffb454';
+      c.beginPath(); c.arc(x(cur, w), yOf(dissAt(cur)), 4.5, 0, 7); c.fill();
+    };
+    draw();
+    registerDraw(canvas, draw);
+  }
+  function setFromEvent(e) {
+    const rect = canvas.getBoundingClientRect();
+    const c = Math.round((e.clientX - rect.left) / rect.width * CMAX);
+    slider.value = Math.max(0, Math.min(1200, c));
+    render();
+  }
+  canvas.addEventListener('pointerdown', e => { setFromEvent(e); canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener('pointermove', e => { if (e.buttons) setFromEvent(e); });
+  slider.oninput = render;
+  document.getElementById('dissPlay').onclick = () =>
+    playFreqs([F0, F0 * Math.pow(2, +slider.value / 1200)], 2.5, true);
+  render();
+})();
+
+/* ───────────────────── 피타고라스 콤마: 5도 나선 ───────────────────── */
+(function buildComma() {
+  const canvas = document.getElementById('commaSpiral');
+  const NAMES = ['도','솔','레','라','미','시','파♯','도♯','솔♯','레♯','라♯','미♯','시♯'];
+  const STEP_DEG = 1200 * Math.log2(1.5) / 1200 * 360; // 순정 5도 = 210.59°
+  const draw = () => {
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth, h = canvas.clientHeight || 340;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    const c = canvas.getContext('2d'); c.scale(dpr, dpr);
+    c.clearRect(0, 0, w, h);
+    const cx = w / 2, cy = h / 2;
+    const rOut = Math.min(w, h) / 2 - 26, r0 = rOut * 0.42, dr = (rOut - 14 - r0) / 12;
+    // 평균율 12음 눈금 (바깥 원)
+    c.font = '10px ui-monospace,monospace'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    for (let i = 0; i < 12; i++) {
+      const a = (-90 + i * 30) * Math.PI / 180;
+      c.strokeStyle = 'rgba(139,150,168,.4)';
+      c.beginPath();
+      c.moveTo(cx + (rOut - 5) * Math.cos(a), cy + (rOut - 5) * Math.sin(a));
+      c.lineTo(cx + (rOut + 5) * Math.cos(a), cy + (rOut + 5) * Math.sin(a));
+      c.stroke();
+    }
+    c.strokeStyle = 'rgba(139,150,168,.18)';
+    c.beginPath(); c.arc(cx, cy, rOut, 0, 7); c.stroke();
+    // 순정 5도 나선
+    const pts = [];
+    for (let i = 0; i <= 12; i++) {
+      const a = (-90 + i * STEP_DEG) * Math.PI / 180;
+      pts.push([cx + (r0 + i * dr) * Math.cos(a), cy + (r0 + i * dr) * Math.sin(a), a]);
+    }
+    c.strokeStyle = 'rgba(124,156,255,.7)'; c.lineWidth = 1.5;
+    c.beginPath();
+    pts.forEach(([px, py], i) => i ? c.lineTo(px, py) : c.moveTo(px, py));
+    c.stroke();
+    pts.forEach(([px, py, a], i) => {
+      c.fillStyle = i === 12 ? '#f87171' : '#7c9cff';
+      c.beginPath(); c.arc(px, py, i === 0 || i === 12 ? 5.5 : 4, 0, 7); c.fill();
+      const lr = r0 + i * dr + 15;
+      c.fillStyle = i === 12 ? '#f87171' : '#8b96a8';
+      c.fillText(NAMES[i], cx + lr * Math.cos(a), cy + lr * Math.sin(a));
+    });
+    // 콤마 간격(빨간 호): 시작 각도 → 12번째 점 각도
+    const a0 = -90 * Math.PI / 180, a12 = (-90 + 12 * STEP_DEG % 360) * Math.PI / 180;
+    c.strokeStyle = '#f87171'; c.lineWidth = 4;
+    c.beginPath(); c.arc(cx, cy, r0 + 12 * dr + 8, a0, a12); c.stroke();
+    c.fillStyle = '#f87171'; c.font = '700 12px ui-monospace,monospace';
+    c.fillText('콤마 23.5¢', cx, cy - (r0 + 12 * dr) + 34);
+  };
+  draw();
+  registerDraw(canvas, draw);
+  const fComma = BASE * Math.pow(1.5, 12) / Math.pow(2, 7); // ≈ BASE × 1.0136
+  document.getElementById('commaPlay').onclick = () => playFreqs([BASE, fComma], 3.5, true);
+  document.getElementById('commaRef').onclick = () => playFreqs([BASE, BASE], 3.5, true);
 })();
 
 /* ───────────────────────── 화음 카드 ───────────────────────── */
