@@ -232,8 +232,9 @@
      그 사이의 주파수에는 증폭할 것이 없기 때문입니다. 자연이 멜로디를 양자화하는 순간입니다.</p>
   <button class="play" id="droneBtn">▶ 드론 시작 (도, 130.8 Hz)</button>
   <input type="range" id="hmSlider" min="2" max="13" step="0.01" value="6" style="width:100%">
+  <canvas id="hmRuler2" style="height:170px;margin-top:6px"></canvas>
   <p id="hmLabel" style="font-family:var(--mono);font-size:.92rem"></p>
-  <p style="font-size:.82rem;color:var(--dim)">위 눈금자의 주황 선이 현재 공명 위치입니다.
+  <p style="font-size:.82rem;color:var(--dim)">주황 선이 현재 공명(혀) 위치입니다.
      ①의 표에서 행을 눌러 특정 배음으로 바로 이동할 수도 있습니다.</p>
 </div>
 
@@ -1035,7 +1036,8 @@ function renderBadness() {
   const NMAX = 13;
   const slider = document.getElementById('hmSlider');
   const label = document.getElementById('hmLabel');
-  const canvas = document.getElementById('hmRuler');
+  const canvas = document.getElementById('hmRuler');   // ① 정적 도표
+  const canvas2 = document.getElementById('hmRuler2'); // ② 공명 위치 표시용
   const btn = document.getElementById('droneBtn');
 
   // n번 배음을 옥타브 안으로 접었을 때의 정보
@@ -1051,11 +1053,11 @@ function renderBadness() {
 
   // 배음 눈금자 (가로축 = 로그 주파수, 1~13번)
   const xOf = (n, w) => Math.log2(n) / Math.log2(NMAX + 1.5) * w;
-  function drawRuler() {
+  function drawRuler(cv, withMarker) {
     const dpr = window.devicePixelRatio || 1;
-    const w = canvas.clientWidth, h = canvas.clientHeight || 170;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    const c = canvas.getContext('2d'); c.scale(dpr, dpr);
+    const w = cv.clientWidth, h = cv.clientHeight || 170;
+    cv.width = w * dpr; cv.height = h * dpr;
+    const c = cv.getContext('2d'); c.scale(dpr, dpr);
     c.clearRect(0, 0, w, h);
     const base = h - 30;
     // 평균율 반음 눈금 (로그축에서 등간격)
@@ -1066,11 +1068,12 @@ function renderBadness() {
     }
     c.strokeStyle = '#2b3344';
     c.beginPath(); c.moveTo(0, base); c.lineTo(w, base); c.stroke();
-    // 현재 공명 위치 (주황 선)
-    const hPos = +slider.value;
-    c.strokeStyle = 'rgba(255,180,84,.9)'; c.lineWidth = 2;
-    c.beginPath(); c.moveTo(xOf(hPos, w), base - h * 0.7); c.lineTo(xOf(hPos, w), base); c.stroke();
-    c.lineWidth = 1;
+    if (withMarker) { // 현재 공명 위치 (주황 선)
+      const hPos = +slider.value;
+      c.strokeStyle = 'rgba(255,180,84,.9)'; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(xOf(hPos, w), base - h * 0.7); c.lineTo(xOf(hPos, w), base); c.stroke();
+      c.lineWidth = 1;
+    }
     // 배음 막대 (높이 ∝ 진폭 1/n)
     c.font = '10px ui-monospace,monospace'; c.textAlign = 'center';
     for (let n = 1; n <= NMAX; n++) {
@@ -1087,8 +1090,11 @@ function renderBadness() {
     c.fillStyle = '#8b96a8'; c.textAlign = 'left';
     c.fillText('배음 번호 →  (가로축 = 로그 주파수, 회색 눈금 = 평균율 반음)', 6, 14);
   }
-  drawRuler();
-  registerDraw(canvas, drawRuler);
+  const drawRuler1 = () => drawRuler(canvas, false);
+  const drawRuler2 = () => drawRuler(canvas2, true);
+  drawRuler1(); drawRuler2();
+  registerDraw(canvas, drawRuler1);
+  registerDraw(canvas2, drawRuler2);
 
   // 배음표
   let t = `<tr><th>배음 n</th><th>주파수</th><th>옥타브 안 비율</th><th>도 기준 음</th><th>평균율과 차이</th></tr>`;
@@ -1143,7 +1149,7 @@ function renderBadness() {
     label.innerHTML = `공명 위치: 배음 ${hPos.toFixed(2)} 부근 → 들리는 음: <b>${n}번 배음</b> ` +
       `(${octRatio(n)}, ${i.name}${Math.abs(i.diff) > 15 ? ' 근처' : ''}, ${i.diff >= 0 ? '+' : ''}${i.diff.toFixed(1)}¢)`;
   }
-  slider.oninput = () => { renderLabel(); drawRuler(); setFormant(+slider.value); };
+  slider.oninput = () => { renderLabel(); drawRuler2(); setFormant(+slider.value); };
   tbl.querySelectorAll('tr.clickable').forEach(tr => tr.onclick = () => {
     slider.value = tr.dataset.n;
     slider.oninput();
