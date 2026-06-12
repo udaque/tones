@@ -67,6 +67,11 @@
   .logline{font-family:var(--mono);font-size:.92rem;background:var(--panel2);
     border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin:6px 0 2px}
   .logline b{color:var(--accent)}
+  .defbox{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:4px 16px;margin:12px 0}
+  .defrow{display:flex;align-items:baseline;gap:14px;padding:10px 0}
+  .defrow+.defrow{border-top:1px dashed var(--border)}
+  .defterm{font-family:var(--mono);color:var(--accent2);font-weight:700;white-space:nowrap;min-width:52px;text-align:right}
+  .defrow .desc{font-size:.92rem}
   .verdict{display:inline-block;border-radius:999px;padding:3px 14px;font-size:.82rem;font-weight:700;margin-left:8px}
   table{border-collapse:collapse;width:100%;font-size:.88rem}
   th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);font-family:var(--mono)}
@@ -225,9 +230,18 @@
 <div class="card" style="margin-top:14px">
   <h3>② 척도 만들기 — 음계의 “유리수 근사력”을 숫자 하나로</h3>
   <p>5도 하나가 아니라 여러 순정비를 동시에 보려면 척도를 직접 정의하면 됩니다:</p>
-  <p class="math" style="background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px 14px">
-     오차 E(N) = 목표 순정비들의 RMS 센트 오차 &nbsp;&nbsp;|&nbsp;&nbsp;
-     가성비 B(N) = N × E(N) <span style="color:var(--dim)">(음 개수만큼 패널티)</span></p>
+  <div class="defbox">
+    <div class="defrow">
+      <span class="defterm">E(N)</span>
+      <span class="desc"><b>오차</b> — 목표 순정비들을 N-EDO의 가장 가까운 단계로 근사했을 때
+        센트 오차의 RMS</span>
+    </div>
+    <div class="defrow">
+      <span class="defterm">B(N)</span>
+      <span class="desc"><b>가성비</b> — <span class="math">N × E(N)</span>.
+        음을 많이 쓸수록 그만큼 패널티 <span style="color:var(--dim)">(낮을수록 좋음)</span></span>
+    </div>
+  </div>
   <p style="font-size:.88rem;color:var(--dim)">B(N)이 낮을수록 “음 하나당 근사 효율”이 좋은 음계입니다.
      N을 곱하는 것은 위 정리의 |q·α − p| (= q × 오차)와 같은 정신 — 디오판토스 근사에서 표준적인 방식입니다.
      어떤 순정비까지 욕심내는지(리미트)에 따라 승자가 바뀝니다. 막대를 클릭하면 위 6장에서 그 음계를 분석합니다.</p>
