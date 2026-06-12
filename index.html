@@ -58,6 +58,7 @@
   button:hover{border-color:var(--accent);color:var(--accent)}
   button.play{background:linear-gradient(135deg,#2b3a6b,#1e2a4f);border-color:#3d5fd6}
   button.play:hover{color:#fff;border-color:var(--accent)}
+  button.active{border-color:var(--accent2);color:var(--accent2);background:#2a2316;font-weight:700}
 
   /* 결과 패널 */
   .result{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -84,7 +85,7 @@
   .callout h3{color:var(--bad);margin-top:0}
 
   /* 화음 카드 */
-  .chordgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+  .chordgrid{display:grid;grid-template-columns:1fr;max-width:760px;gap:16px}
   .chord{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px;
     display:flex;flex-direction:column;gap:10px}
   .chord h3{margin:0;font-size:1.05rem}
@@ -166,15 +167,31 @@
 <div class="card" style="overflow-x:auto">
   <table id="summaryTable"></table>
   <p style="font-size:.82rem;color:var(--dim);margin-top:10px">
-    “최적 유리수”는 연분수 convergent 중 평균율 값과 18센트 이내로 맞는 가장 단순한 분수입니다.
-    복잡도 p×q가 작을수록 두 파형이 빨리 다시 만나며, 음악 이론의 전통적 협화도 분류와 거의 일치합니다.</p>
+    “최적 유리수”는 평균율 값과 18센트 이내로 맞는 가장 단순한 분수입니다.
+    분수가 단순할수록 두 파형이 빨리 다시 만나며, 음악 이론의 전통적 협화도 분류와 거의 일치합니다.</p>
 </div>
 
-<h2><span class="no">5</span>화음 도감 — 구성음 사이의 정수비와 파형</h2>
+<h2><span class="no">5</span>다른 음계들 — 옥타브를 꼭 12등분해야 할까?</h2>
+<div class="card">
+  <p style="color:var(--dim);font-size:.92rem;margin-top:0">옥타브를 N등분하는 평균율을 <b>N-EDO</b>라 부릅니다.
+     좋은 음계란 적은 음 개수로 3/2, 5/4 같은 <b>단순한 유리수를 동시에 잘 근사</b>하는 음계입니다.
+     12가 표준이 된 것은 우연이 아니라, log₂3 ≈ 19/12라는 연분수 근사 덕분에
+     단 12음으로 완전5도를 2센트 이내로 맞추기 때문입니다. 53-EDO는 더 정확하지만 음이 너무 많죠.
+     아래에서 음계를 골라 비교해 보세요. (단계표의 행을 누르면 근음과 함께 들려줍니다)</p>
+  <div class="presets" id="edoBtns" style="justify-content:flex-start;margin-bottom:6px"></div>
+  <p id="edoDesc" style="font-size:.9rem;color:var(--dim)"></p>
+  <h3 style="font-size:.98rem;color:var(--accent);margin:18px 0 8px">주요 순정비를 얼마나 잘 맞추나</h3>
+  <div style="overflow-x:auto"><table id="edoTargets"></table></div>
+  <h3 style="font-size:.98rem;color:var(--accent);margin:22px 0 8px">전체 단계표</h3>
+  <div style="overflow-x:auto;max-height:430px"><table id="edoSteps"></table></div>
+</div>
+
+<h2><span class="no">6</span>화음 도감 — 구성음 사이의 정수비와 파형</h2>
 <p style="color:var(--dim);font-size:.92rem">각 화음의 구성음을 유리수로 근사한 뒤 통분하면 화음 전체가 하나의
    <b>정수비</b>가 됩니다(장3화음 = 4:5:6). 파형은 그 정수비 사인파들의 합으로, 캔버스 가로 전체가 정확히 <b>한 주기</b>입니다.
    정수가 작을수록 근음이 몇 번만 진동해도 패턴이 반복되어 안정적으로 들립니다.
-   각 음 쌍의 배수 관계(예: 5/4, 6/5, 3/2)도 칩으로 표시했습니다.</p>
+   각 음 쌍의 배수 관계(예: 5/4, 6/5, 3/2)도 칩으로 표시했습니다. 화음을 골라 보세요.</p>
+<div class="presets" id="chordPills" style="justify-content:flex-start"></div>
 <div class="chordgrid" id="chordGrid"></div>
 
 <footer>
@@ -296,7 +313,7 @@ function playFreqs(freqs, dur = 1.8) {
 /* ───────────────────────── 파형 그리기 ─────────────────────────
    ints: 정수 주파수 배수 — 캔버스 가로 = 공통 주기 1 (각 성분 sin(2π·n·t)) */
 const PALETTE = ['#7c9cff','#ffb454','#4ade80','#f472b6','#38bdf8'];
-const redrawers = [];
+let redrawers = [];
 function drawWave(canvas, ints) {
   const draw = () => {
     const dpr = window.devicePixelRatio || 1;
@@ -331,9 +348,12 @@ function drawWave(canvas, ints) {
     c.stroke();
   };
   draw();
-  redrawers.push(draw);
+  redrawers.push({ canvas, draw });
 }
-window.addEventListener('resize', () => redrawers.forEach(f => f()));
+window.addEventListener('resize', () => {
+  redrawers = redrawers.filter(r => r.canvas.isConnected);
+  redrawers.forEach(r => r.draw());
+});
 
 /* ───────────────────────── 피아노 건반 ───────────────────────── */
 const piano = document.getElementById('piano');
@@ -466,27 +486,93 @@ renderInterval();
 /* ───────────────────────── 12음정 요약표 ───────────────────────── */
 (function buildSummary() {
   const tbl = document.getElementById('summaryTable');
-  let html = `<tr><th>반음 k</th><th>음정</th><th>2^(k/12)</th><th>연분수</th>
-              <th>최적 유리수</th><th>오차</th><th>p×q</th><th>협화도</th></tr>`;
+  let html = `<tr><th>반음 k</th><th>음정</th><th>2^(k/12)</th>
+              <th>최적 유리수</th><th>오차</th><th>협화도</th></tr>`;
   for (let k = 1; k <= 12; k++) {
     const r = Math.pow(2, k / 12);
-    const cf = contFrac(r);
     const b = bestRatio(r);
     const [name, cls] = CONSONANCE[k];
     html += `<tr${k === 6 ? ' style="background:#231419"' : ''}>
       <td>${k}</td><td style="font-family:inherit">${INTERVAL_NAME[k]}</td>
-      <td>${r.toFixed(4)}</td><td>${cfBracket(cf, 5)}</td>
+      <td>${r.toFixed(4)}</td>
       <td><b>${b.p}/${b.q}</b></td>
-      <td>${b.err >= 0 ? '+' : ''}${b.err.toFixed(1)}¢</td><td>${b.p * b.q}</td>
+      <td>${b.err >= 0 ? '+' : ''}${b.err.toFixed(1)}¢</td>
       <td style="font-family:inherit"><span class="verdict ${cls}" style="margin:0">${name}</span></td></tr>`;
   }
   tbl.innerHTML = html;
 })();
 
+/* ───────────────────────── 다른 음계 (N-EDO) ───────────────────────── */
+const EDOS = [
+  { n:5,  desc:'인도네시아 가믈란의 슬렌드로 음계와 닮은 음계. 5도(720¢)가 18센트나 높아 묘하게 떠 있는 느낌이 납니다.' },
+  { n:7,  desc:'태국 전통 음악에서 쓰이는 균등 7음계. 모든 2도가 똑같아져 장음계·단음계의 구분 자체가 사라집니다.' },
+  { n:12, desc:'표준 서양 음계. log₂3 ≈ 19/12 덕분에 단 12음으로 완전5도를 2센트 이내로 맞추는 기적의 타협입니다.' },
+  { n:19, desc:'16세기부터 제안된 대안(살리나스). 장3도·단3도가 12-EDO보다 훨씬 순정에 가깝습니다.' },
+  { n:24, desc:'쿼터톤 음계. 아랍 마캄 음악 이론의 토대로, 12-EDO의 모든 음을 포함하면서 그 사이의 중간음을 추가합니다.' },
+  { n:31, desc:'하위헌스가 연구한 음계. 가온음률(meantone)과 사실상 동일하며, 5/4는 물론 배음렬의 7/4까지 훌륭하게 근사합니다.' },
+  { n:53, desc:'메르카토르의 음계이자 터키 음악 이론의 단위(코마). 3/2와 5/4를 1.5센트 이내로 — 사실상 순정률입니다.' },
+];
+const JUST_TARGETS = [
+  [3,2,'완전5도'], [4,3,'완전4도'], [5,4,'장3도'], [6,5,'단3도'],
+  [5,3,'장6도'], [8,5,'단6도'], [9,8,'장2도'], [15,8,'장7도'],
+  [7,4,'자연 7도 (배음렬)'], [7,5,'7-리미트 트라이톤'],
+];
+function edoVerdict(absErr) {
+  if (absErr < 5)  return ['거의 완벽', 'c-good'];
+  if (absErr < 15) return ['좋음', 'c-ok'];
+  if (absErr < 30) return ['아쉬움', 'c-mild'];
+  return ['빗나감', 'c-bad'];
+}
+function renderEDO(n) {
+  document.querySelectorAll('#edoBtns button').forEach(b =>
+    b.classList.toggle('active', +b.dataset.n === n));
+  document.getElementById('edoDesc').textContent = EDOS.find(e => e.n === n).desc;
+  const step = 1200 / n;
+  // 주요 순정비 적중표
+  let t1 = `<tr><th>순정비</th><th>이름</th><th>가까운 단계</th><th>단계 값</th><th>오차</th><th>평가</th></tr>`;
+  JUST_TARGETS.forEach(([p, q, name]) => {
+    const target = cents(p / q), k = Math.round(target / step), err = k * step - target;
+    const [v, cls] = edoVerdict(Math.abs(err));
+    t1 += `<tr><td><b>${p}/${q}</b></td><td style="font-family:inherit">${name}</td>
+      <td>${k} / ${n}</td><td>${(k * step).toFixed(1)}¢</td>
+      <td>${err >= 0 ? '+' : ''}${err.toFixed(1)}¢</td>
+      <td style="font-family:inherit"><span class="verdict ${cls}" style="margin:0">${v}</span></td></tr>`;
+  });
+  document.getElementById('edoTargets').innerHTML = t1;
+  // 전체 단계표
+  let t2 = `<tr><th>단계 k</th><th>센트</th><th>2^(k/${n})</th><th>최적 유리수</th><th>오차</th></tr>`;
+  for (let k = 1; k <= n; k++) {
+    const r = Math.pow(2, k / n), b = bestRatio(r);
+    const simple = b.q <= 60;
+    t2 += `<tr class="clickable" data-r="${r}">
+      <td>${k}</td><td>${(k * step).toFixed(1)}¢</td><td>${r.toFixed(4)}</td>
+      <td>${simple ? `<b>${b.p}/${b.q}</b>` : '<span style="color:var(--bad)">단순한 비 없음</span>'}</td>
+      <td>${simple ? (b.err >= 0 ? '+' : '') + b.err.toFixed(1) + '¢' : '—'}</td></tr>`;
+  }
+  const st = document.getElementById('edoSteps');
+  st.innerHTML = t2;
+  st.querySelectorAll('tr.clickable').forEach(tr =>
+    tr.onclick = () => playFreqs([BASE, BASE * +tr.dataset.r], 1.4));
+}
+(function buildEDO() {
+  const wrap = document.getElementById('edoBtns');
+  EDOS.forEach(e => {
+    const b = document.createElement('button');
+    b.textContent = e.n + '-EDO'; b.dataset.n = e.n;
+    b.onclick = () => renderEDO(e.n);
+    wrap.appendChild(b);
+  });
+  renderEDO(12);
+})();
+
 /* ───────────────────────── 화음 카드 ───────────────────────── */
 (function buildChords() {
   const grid = document.getElementById('chordGrid');
-  CHORDS.forEach((ch, ci) => {
+  const pills = document.getElementById('chordPills');
+
+  function renderChord(ci) {
+    pills.querySelectorAll('button').forEach((b, i) => b.classList.toggle('active', i === ci));
+    const ch = CHORDS[ci];
     const { ints } = chordIntegers(ch.semis);
     const notes = ch.semis.map(s => NOTE_KO[s % 12] + (s >= 12 ? '′' : '')).join(' · ');
     // 모든 음 쌍의 배수 관계
@@ -506,19 +592,27 @@ renderInterval();
       <div class="notesline">구성음: ${notes} <span style="opacity:.6">(반음 ${ch.semis.join(', ')})</span></div>
       <div class="ints">${ints.join(' : ')}</div>
       <div class="pairs">${pairs.join('')}</div>
-      <canvas id="cv${ci}" style="height:110px"></canvas>
+      <canvas style="height:130px"></canvas>
       <div class="wavecap">가로 전체 = 한 주기 (근음 ${ints[0]}회 진동 후 전체 파형 반복)</div>
       <div class="btns">
         <button class="play" data-mode="et">▶ 평균율</button>
         <button class="play" data-mode="ji">▶ 순정비 ${ints.join(':')}</button>
       </div>`;
-    grid.appendChild(card);
+    grid.replaceChildren(card);
     drawWave(card.querySelector('canvas'), ints);
     card.querySelector('[data-mode="et"]').onclick = () =>
       playFreqs(ch.semis.map(s => BASE * Math.pow(2, s / 12)), 2.2);
     card.querySelector('[data-mode="ji"]').onclick = () =>
       playFreqs(ints.map(n => BASE * n / ints[0]), 2.2);
+  }
+
+  CHORDS.forEach((ch, ci) => {
+    const b = document.createElement('button');
+    b.textContent = ch.ko; b.title = ch.en;
+    b.onclick = () => renderChord(ci);
+    pills.appendChild(b);
   });
+  renderChord(1); // 기본: 장3화음
 })();
 </script>
 </body>
