@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>화음과 유리수 — 평균율, 연분수, 그리고 사인파</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --border:#2b3344;
+    --text:#dfe6f1; --dim:#8b96a8; --accent:#7c9cff; --accent2:#ffb454;
+    --good:#4ade80; --ok:#38bdf8; --mild:#fbbf24; --bad:#f87171;
+    --mono:ui-monospace,'SF Mono','Cascadia Code',Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+       line-height:1.65}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 20px 80px}
+  header{padding:64px 0 24px;text-align:center}
+  header h1{font-size:2.1rem;margin:0 0 10px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{color:var(--dim);max-width:640px;margin:0 auto}
+  h2{font-size:1.35rem;margin:56px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+  h2 .no{color:var(--accent);font-family:var(--mono);margin-right:8px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px}
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .card h3{margin:0 0 8px;font-size:1.02rem;color:var(--accent)}
+  .card p{margin:6px 0;font-size:.92rem;color:var(--dim)}
+  .math{font-family:var(--mono);color:var(--text)}
+  code,.mono{font-family:var(--mono);font-size:.92em;background:var(--panel2);
+    border:1px solid var(--border);border-radius:5px;padding:1px 6px}
+
+  /* 연분수 표시 */
+  .frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 2px}
+  .frac>.num{border-bottom:1.5px solid currentColor;padding:0 .35em}
+  .frac>.den{padding:0 .2em}
+  .frac .frac{font-size:.82em}
+  .cfbox{font-family:var(--mono);font-size:1.05rem;background:var(--panel2);
+    border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto}
+
+  /* 피아노 */
+  .piano{position:relative;height:170px;max-width:640px;margin:18px auto 8px;user-select:none}
+  .wkey{position:absolute;top:0;height:100%;width:12.5%;background:#f4f6fa;border:1px solid #555;
+    border-radius:0 0 7px 7px;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;
+    padding-bottom:8px;color:#333;font-size:.8rem;font-weight:600;transition:background .12s}
+  .wkey:hover{background:#dde4f0}
+  .bkey{position:absolute;top:0;height:60%;width:7.5%;background:#1a1d24;border:1px solid #000;
+    border-radius:0 0 5px 5px;cursor:pointer;z-index:2;display:flex;align-items:flex-end;
+    justify-content:center;padding-bottom:6px;color:#aaa;font-size:.62rem;transition:background .12s}
+  .bkey:hover{background:#34394a}
+  .wkey.sel{background:linear-gradient(180deg,#7c9cff,#5b7fff);color:#fff}
+  .bkey.sel{background:linear-gradient(180deg,#7c9cff,#3d5fd6);color:#fff}
+  .hint{text-align:center;color:var(--dim);font-size:.85rem;margin-bottom:14px}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 22px}
+  button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--border);
+    background:var(--panel2);color:var(--text);padding:7px 14px;font-size:.86rem;transition:all .15s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.play{background:linear-gradient(135deg,#2b3a6b,#1e2a4f);border-color:#3d5fd6}
+  button.play:hover{color:#fff;border-color:var(--accent)}
+
+  /* 결과 패널 */
+  .result{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.result{grid-template-columns:1fr}}
+  .bigratio{font-family:var(--mono);font-size:2rem;color:var(--accent2);margin:4px 0}
+  .verdict{display:inline-block;border-radius:999px;padding:3px 14px;font-size:.82rem;font-weight:700;margin-left:8px}
+  table{border-collapse:collapse;width:100%;font-size:.88rem}
+  th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);font-family:var(--mono)}
+  th{color:var(--dim);font-weight:600;font-family:inherit}
+  td:first-child,th:first-child{text-align:left}
+  tr.clickable{cursor:pointer}
+  tr.clickable:hover td{background:#222a3a}
+  tr.chosen td{background:#26345c}
+  .badge{font-size:.7rem;background:var(--accent);color:#0d1117;border-radius:5px;
+    padding:1px 6px;margin-left:6px;font-weight:700;font-family:inherit}
+  canvas{width:100%;display:block;background:#0a0e14;border:1px solid var(--border);border-radius:10px}
+  .wavecap{font-size:.8rem;color:var(--dim);margin-top:6px;text-align:center}
+
+  /* 트라이톤 콜아웃 */
+  .callout{border-left:4px solid var(--bad);background:#1d1418;border-radius:0 12px 12px 0;padding:18px 22px}
+  .callout h3{color:var(--bad);margin-top:0}
+
+  /* 화음 카드 */
+  .chordgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+  .chord{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px;
+    display:flex;flex-direction:column;gap:10px}
+  .chord h3{margin:0;font-size:1.05rem}
+  .chord h3 small{color:var(--dim);font-weight:400;font-size:.78rem;margin-left:6px}
+  .chord .ints{font-family:var(--mono);font-size:1.5rem;color:var(--accent2);letter-spacing:1px}
+  .pairs{display:flex;flex-wrap:wrap;gap:6px}
+  .pair{font-size:.74rem;font-family:var(--mono);background:var(--panel2);
+    border:1px solid var(--border);border-radius:6px;padding:2px 8px;color:var(--dim)}
+  .pair b{color:var(--text)}
+  .chord .btns{display:flex;gap:8px;margin-top:auto}
+  .notesline{font-size:.82rem;color:var(--dim)}
+  footer{margin-top:70px;text-align:center;color:var(--dim);font-size:.82rem}
+  .c-good{background:rgba(74,222,128,.15);color:var(--good)}
+  .c-ok{background:rgba(56,189,248,.15);color:var(--ok)}
+  .c-mild{background:rgba(251,191,36,.15);color:var(--mild)}
+  .c-bad{background:rgba(248,113,113,.15);color:var(--bad)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>화음 ≈ 유리수</h1>
+  <p>두 음이 어울리는지는 결국 <b>주파수 비가 얼마나 단순한 유리수에 가까운가</b>의 문제입니다.
+     평균율의 무리수 비 2<sup>k/12</sup>를 <b>연분수</b>로 전개해 가장 자연스러운 유리수 근사를 찾고,
+     그 사인파가 한 주기 안에서 어떻게 포개지는지 눈과 귀로 확인해 보세요.</p>
+</header>
+
+<h2><span class="no">1</span>세 가지 핵심 아이디어</h2>
+<div class="grid3">
+  <div class="card">
+    <h3>평균율 (Equal Temperament)</h3>
+    <p>한 옥타브(주파수 2배)를 똑같은 비율 12개로 쪼갭니다. 반음 하나의 비는
+       <span class="math">2<sup>1/12</sup> ≈ 1.0595</span>,
+       반음 k개 떨어진 두 음의 비는 <span class="math">2<sup>k/12</sup></span>.
+       k = 12가 아니면 이 값은 항상 <b>무리수</b>입니다.</p>
+  </div>
+  <div class="card">
+    <h3>연분수 (Continued Fraction)</h3>
+    <p>어떤 수든 <span class="math">a₀ + 1/(a₁ + 1/(a₂ + ⋯))</span> 꼴로 전개할 수 있고,
+       중간에서 끊은 값(<b>convergent</b>)이 그 수의 <b>최적 유리수 근사</b>가 됩니다.
+       전개 도중 큰 항이 나오면 직전 분수가 이미 놀랍도록 좋은 근사라는 뜻입니다.</p>
+  </div>
+  <div class="card">
+    <h3>협화의 비밀</h3>
+    <p>주파수 비가 3:2처럼 단순하면 두 사인파의 합이 <b>짧은 주기로 깔끔하게 반복</b>되어
+       귀가 하나의 패턴으로 인식합니다(협화). 17:12처럼 복잡해야만 근사되면
+       파형이 좀처럼 반복되지 않아 거칠게 들립니다(불협).</p>
+  </div>
+</div>
+
+<h2><span class="no">2</span>음정 탐색기 — 건반에서 두 음을 고르세요</h2>
+<div class="piano" id="piano"></div>
+<div class="hint">건반을 눌러 두 음을 선택하세요 (스피커를 켜면 소리도 들을 수 있습니다)</div>
+<div class="presets" id="presets"></div>
+<div id="intervalResult"></div>
+
+<h2><span class="no">3</span>스포트라이트: 파–시는 왜 그렇게 불편한가 (트라이톤)</h2>
+<div class="callout">
+  <h3>√2 — 유리수가 가장 미워하는 수</h3>
+  <p>파(F)와 시(B)는 반음 6개 차이, 정확히 옥타브의 절반입니다. 주파수 비는
+     <span class="math">2<sup>6/12</sup> = √2</span>.
+     그런데 √2의 연분수 전개는 <span class="math">[1; 2, 2, 2, 2, …]</span> —
+     <b>작은 항(2)만 영원히 반복</b>됩니다. 큰 항이 한 번도 나오지 않는다는 것은,
+     어떤 분수를 가져와도 분모 크기에 비해 근사가 형편없다는 뜻입니다.</p>
+  <p>실제로 가장 단순한 후보 <b>7/5</b>조차 17.5센트(반음의 약 1/6!)나 빗나가고,
+     몇 센트 안쪽으로 들어가려면 <b>17/12</b>처럼 복잡한 분수가 필요합니다.
+     17:12 비율에서는 낮은 음이 12번, 높은 음이 17번 진동해야 비로소 파형이 한 번 반복되니
+     귀가 공통 패턴을 찾지 못해 긴장과 거칢으로 느끼는 것입니다.
+     중세 음악가들이 이 음정을 <i>diabolus in musica</i>(음악 속의 악마)라 부른 이유죠.</p>
+  <p>비교: 완전5도(도–솔)의 비 <span class="math">2<sup>7/12</sup></span>는 연분수가
+     <span class="math">[1; 2, <b style="color:var(--good)">147</b>, …]</span>로 전개됩니다.
+     세 번째 항이 147이나 되니, 직전 근사 <b>3/2</b>는 단 2센트 오차의 환상적인 근사 —
+     그래서 평균율 5도는 순정 5도와 거의 구별되지 않습니다.</p>
+  <p><button id="goTritone" class="play">▶ 위 탐색기에서 파–시 직접 보기</button></p>
+</div>
+
+<h2><span class="no">4</span>12음정 총정리 — 연분수가 말해주는 협화도</h2>
+<div class="card" style="overflow-x:auto">
+  <table id="summaryTable"></table>
+  <p style="font-size:.82rem;color:var(--dim);margin-top:10px">
+    “최적 유리수”는 연분수 convergent 중 평균율 값과 18센트 이내로 맞는 가장 단순한 분수입니다.
+    복잡도 p×q가 작을수록 두 파형이 빨리 다시 만나며, 음악 이론의 전통적 협화도 분류와 거의 일치합니다.</p>
+</div>
+
+<h2><span class="no">5</span>화음 도감 — 구성음 사이의 정수비와 파형</h2>
+<p style="color:var(--dim);font-size:.92rem">각 화음의 구성음을 유리수로 근사한 뒤 통분하면 화음 전체가 하나의
+   <b>정수비</b>가 됩니다(장3화음 = 4:5:6). 파형은 그 정수비 사인파들의 합으로, 캔버스 가로 전체가 정확히 <b>한 주기</b>입니다.
+   정수가 작을수록 근음이 몇 번만 진동해도 패턴이 반복되어 안정적으로 들립니다.
+   각 음 쌍의 배수 관계(예: 5/4, 6/5, 3/2)도 칩으로 표시했습니다.</p>
+<div class="chordgrid" id="chordGrid"></div>
+
+<footer>
+  평균율 · 연분수 · 협화 — 수학으로 듣는 음악 | 사인파 재생은 Web Audio API 사용
+</footer>
+</div>
+
+<script>
+'use strict';
+/* ───────────────────────── 수학 유틸 ───────────────────────── */
+function contFrac(x, maxTerms = 12, eps = 1e-9) {
+  const a = []; let v = x;
+  for (let i = 0; i < maxTerms; i++) {
+    const ai = Math.floor(v); a.push(ai);
+    const f = v - ai;
+    if (f < eps) break;
+    v = 1 / f;
+  }
+  return a;
+}
+function convergents(a) {
+  const res = []; let p0 = 1, q0 = 0, p1 = a[0], q1 = 1;
+  res.push([p1, q1]);
+  for (let i = 1; i < a.length; i++) {
+    const p = a[i] * p1 + p0, q = a[i] * q1 + q0;
+    res.push([p, q]); p0 = p1; q0 = q1; p1 = p; q1 = q;
+  }
+  return res;
+}
+const cents = r => 1200 * Math.log2(r);
+function centsErr(p, q, x) { return cents((p / q) / x); }
+/* 18센트 이내로 맞는 가장 단순한 convergent (없으면 가장 정확한 것) */
+function bestRatio(x, tol = 18) {
+  const cv = convergents(contFrac(x));
+  for (const [p, q] of cv) {
+    if (Math.abs(centsErr(p, q, x)) < tol) return { p, q, err: centsErr(p, q, x) };
+  }
+  const [p, q] = cv[cv.length - 1];
+  return { p, q, err: centsErr(p, q, x) };
+}
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+const lcm = (a, b) => a / gcd(a, b) * b;
+
+/* 연분수를 겹친 분수 HTML로 */
+function cfHTML(a, i = 0, maxDepth = 4) {
+  if (i === a.length - 1) return String(a[i]);
+  if (i === maxDepth) return a[i] + ' + ⋱';
+  return a[i] + ' + <span class="frac"><span class="num">1</span><span class="den">'
+       + cfHTML(a, i + 1, maxDepth) + '</span></span>';
+}
+function cfBracket(a, max = 7) {
+  const t = a.slice(0, max).map((v, i) => i === 0 ? v + ';' : v);
+  return '[' + t.join(' ').replace('; ', '; ') + (a.length > max ? ', …]' : ']');
+}
+
+/* ───────────────────────── 음악 데이터 ───────────────────────── */
+const BASE = 261.63; // C4 (도)
+const NOTE_KO = ['도','도♯','레','레♯','미','파','파♯','솔','솔♯','라','라♯','시','도′'];
+const NOTE_EN = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B','C′'];
+const INTERVAL_NAME = {1:'단2도',2:'장2도',3:'단3도',4:'장3도',5:'완전4도',
+  6:'증4도 · 트라이톤',7:'완전5도',8:'단6도',9:'장6도',10:'단7도',11:'장7도',
+  12:'옥타브',13:'단9도',14:'장9도'};
+const CONSONANCE = {
+  5:['완전 협화','c-good'],7:['완전 협화','c-good'],12:['완전 협화','c-good'],
+  3:['불완전 협화','c-ok'],4:['불완전 협화','c-ok'],8:['불완전 협화','c-ok'],9:['불완전 협화','c-ok'],
+  2:['온건한 불협화','c-mild'],10:['온건한 불협화','c-mild'],
+  1:['날카로운 불협화','c-bad'],11:['날카로운 불협화','c-bad'],
+  6:['불협화 — 악마의 음정','c-bad'],13:['날카로운 불협화','c-bad'],14:['온건한 불협화','c-mild']
+};
+
+const CHORDS = [
+  { ko:'파워 코드',      en:'Power Chord',        semis:[0,7] },
+  { ko:'장3화음',        en:'Major Triad',        semis:[0,4,7] },
+  { ko:'단3화음',        en:'Minor Triad',        semis:[0,3,7] },
+  { ko:'감3화음',        en:'Diminished Triad',   semis:[0,3,6] },
+  { ko:'증3화음',        en:'Augmented Triad',    semis:[0,4,8] },
+  { ko:'서스2',          en:'Sus2',               semis:[0,2,7] },
+  { ko:'서스4',          en:'Sus4',               semis:[0,5,7] },
+  { ko:'장6화음',        en:'Major 6th',          semis:[0,4,7,9] },
+  { ko:'속7화음',        en:'Dominant 7th',       semis:[0,4,7,10] },
+  { ko:'장7화음',        en:'Major 7th',          semis:[0,4,7,11] },
+  { ko:'단7화음',        en:'Minor 7th',          semis:[0,3,7,10] },
+  { ko:'반감7화음',      en:'Half-diminished 7th',semis:[0,3,6,10] },
+  { ko:'감7화음',        en:'Diminished 7th',     semis:[0,3,6,9] },
+  { ko:'단장7화음',      en:'Minor-Major 7th',    semis:[0,3,7,11] },
+  { ko:'애드나인',       en:'Add 9',              semis:[0,4,7,14] },
+  { ko:'속9화음',        en:'Dominant 9th',       semis:[0,4,7,10,14] },
+];
+
+/* 반음 배열 → 화음 전체 정수비 */
+function chordIntegers(semis) {
+  const fr = semis.map(s => bestRatio(Math.pow(2, s / 12)));
+  const L = fr.reduce((acc, f) => lcm(acc, f.q), 1);
+  let ints = fr.map(f => f.p * L / f.q);
+  const g = ints.reduce((a, b) => gcd(a, b));
+  ints = ints.map(n => n / g);
+  return { ints, fr };
+}
+
+/* ───────────────────────── 오디오 ───────────────────────── */
+let actx = null;
+function playFreqs(freqs, dur = 1.8) {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
+  const t0 = actx.currentTime;
+  const master = actx.createGain();
+  master.gain.setValueAtTime(0, t0);
+  master.gain.linearRampToValueAtTime(0.5 / Math.sqrt(freqs.length), t0 + 0.03);
+  master.gain.setValueAtTime(0.5 / Math.sqrt(freqs.length), t0 + dur - 0.35);
+  master.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  master.connect(actx.destination);
+  freqs.forEach(f => {
+    const o = actx.createOscillator();
+    o.type = 'sine'; o.frequency.value = f;
+    o.connect(master); o.start(t0); o.stop(t0 + dur + 0.05);
+  });
+}
+
+/* ───────────────────────── 파형 그리기 ─────────────────────────
+   ints: 정수 주파수 배수 — 캔버스 가로 = 공통 주기 1 (각 성분 sin(2π·n·t)) */
+const PALETTE = ['#7c9cff','#ffb454','#4ade80','#f472b6','#38bdf8'];
+const redrawers = [];
+function drawWave(canvas, ints) {
+  const draw = () => {
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth, h = canvas.clientHeight || 130;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    const c = canvas.getContext('2d');
+    c.scale(dpr, dpr);
+    c.clearRect(0, 0, w, h);
+    const mid = h / 2, amp = h * 0.42, N = Math.max(600, w);
+    c.strokeStyle = '#2b3344'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(0, mid); c.lineTo(w, mid); c.stroke();
+    // 개별 성분 (옅게)
+    ints.forEach((n, idx) => {
+      c.strokeStyle = PALETTE[idx % PALETTE.length] + '55';
+      c.lineWidth = 1;
+      c.beginPath();
+      for (let i = 0; i <= N; i++) {
+        const t = i / N, y = mid - amp * Math.sin(2 * Math.PI * n * t) / ints.length;
+        i ? c.lineTo(i / N * w, y) : c.moveTo(0, y);
+      }
+      c.stroke();
+    });
+    // 합성파 (굵게)
+    c.strokeStyle = '#eaf0ff'; c.lineWidth = 2;
+    c.beginPath();
+    for (let i = 0; i <= N; i++) {
+      const t = i / N;
+      let s = 0; ints.forEach(n => s += Math.sin(2 * Math.PI * n * t));
+      const y = mid - amp * s / ints.length;
+      i ? c.lineTo(i / N * w, y) : c.moveTo(0, y);
+    }
+    c.stroke();
+  };
+  draw();
+  redrawers.push(draw);
+}
+window.addEventListener('resize', () => redrawers.forEach(f => f()));
+
+/* ───────────────────────── 피아노 건반 ───────────────────────── */
+const piano = document.getElementById('piano');
+const WHITE = [0,2,4,5,7,9,11,12];          // 흰 건반 음 인덱스
+const BLACK = [[1,1],[3,2],[6,4],[8,5],[10,6]]; // [음 인덱스, 왼쪽 흰건반 수]
+let selected = [5, 11]; // 기본: 도–솔 대신 시작은 도–솔로 두려면 [0,7]; 트라이톤 강조 전 기본 [0,7]
+selected = [0, 7];
+
+WHITE.forEach((n, i) => {
+  const k = document.createElement('div');
+  k.className = 'wkey'; k.dataset.note = n;
+  k.style.left = (i * 12.5) + '%';
+  k.textContent = NOTE_KO[n];
+  piano.appendChild(k);
+});
+BLACK.forEach(([n, w]) => {
+  const k = document.createElement('div');
+  k.className = 'bkey'; k.dataset.note = n;
+  k.style.left = 'calc(' + (w * 12.5) + '% - 3.75%)';
+  k.textContent = NOTE_KO[n];
+  piano.appendChild(k);
+});
+piano.addEventListener('click', e => {
+  const el = e.target.closest('[data-note]');
+  if (!el) return;
+  const n = +el.dataset.note;
+  if (selected.includes(n)) selected = selected.filter(x => x !== n);
+  else if (selected.length < 2) selected.push(n);
+  else selected = [n];
+  renderInterval();
+});
+
+const PRESETS = [
+  ['완전5도 (도–솔)', 0, 7], ['완전4도 (도–파)', 0, 5], ['장3도 (도–미)', 0, 4],
+  ['단3도 (도–미♭)', 0, 3], ['트라이톤 (파–시) 😈', 5, 11], ['단2도 (도–도♯)', 0, 1],
+  ['옥타브 (도–도′)', 0, 12],
+];
+const presetsEl = document.getElementById('presets');
+PRESETS.forEach(([label, a, b]) => {
+  const btn = document.createElement('button');
+  btn.textContent = label;
+  btn.onclick = () => { selected = [a, b]; renderInterval(); };
+  presetsEl.appendChild(btn);
+});
+document.getElementById('goTritone').onclick = () => {
+  selected = [5, 11]; renderInterval();
+  document.getElementById('piano').scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+/* ───────────────────────── 음정 분석 렌더 ───────────────────────── */
+const resEl = document.getElementById('intervalResult');
+let chosenPQ = null; // 사용자가 표에서 고른 근사
+
+function renderInterval(keepChoice = false) {
+  if (!keepChoice) chosenPQ = null;
+  document.querySelectorAll('#piano [data-note]').forEach(el =>
+    el.classList.toggle('sel', selected.includes(+el.dataset.note)));
+  if (selected.length !== 2) {
+    resEl.innerHTML = '<div class="card" style="text-align:center;color:var(--dim)">두 음을 선택하면 분석이 나타납니다 🎹</div>';
+    return;
+  }
+  const [lo, hi] = [...selected].sort((a, b) => a - b);
+  const k = hi - lo;
+  const ratio = Math.pow(2, k / 12);
+  const cf = contFrac(ratio);
+  const cv = convergents(cf).filter(([p, q]) => !(p === q)); // 1/1 같은 자명한 건 정리
+  if (!cv.length) cv.push([2, 1]);
+  const rec = bestRatio(ratio);
+  const sel = chosenPQ || rec;
+  const [name, cls] = CONSONANCE[k] || ['—', 'c-ok'];
+  const fLo = BASE * Math.pow(2, lo / 12), fHi = BASE * Math.pow(2, hi / 12);
+
+  const rows = cv.map(([p, q]) => {
+    const err = centsErr(p, q, ratio);
+    const isRec = p === rec.p && q === rec.q;
+    const isSel = p === sel.p && q === sel.q;
+    return `<tr class="clickable${isSel ? ' chosen' : ''}" data-p="${p}" data-q="${q}">
+      <td>${p}/${q}${isRec ? '<span class="badge">추천</span>' : ''}</td>
+      <td>${(p / q).toFixed(6)}</td>
+      <td>${err >= 0 ? '+' : ''}${err.toFixed(1)}¢</td>
+      <td>${p * q}</td></tr>`;
+  }).join('');
+
+  resEl.innerHTML = `
+  <div class="result">
+    <div class="card">
+      <h3>${NOTE_KO[lo]} – ${NOTE_KO[hi]} <small style="color:var(--dim)">(${NOTE_EN[lo]}–${NOTE_EN[hi]}, 반음 ${k}개)</small></h3>
+      <p>${INTERVAL_NAME[k] || ''} <span class="verdict ${cls}">${name}</span></p>
+      <div class="bigratio">2<sup style="font-size:.55em">${k}/12</sup> = ${ratio.toFixed(6)}…</div>
+      <p>주파수: ${fLo.toFixed(1)} Hz / ${fHi.toFixed(1)} Hz</p>
+      <p style="margin-top:12px;color:var(--text)">연분수 전개</p>
+      <div class="cfbox">${cfHTML(cf)}<br><br>= ${cfBracket(cf)}</div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="play" id="btnET">▶ 평균율로 듣기</button>
+        <button class="play" id="btnJI">▶ 순정비 ${sel.p}:${sel.q}로 듣기</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>유리수 근사 (convergents) — 행을 눌러 파형 비교</h3>
+      <table>
+        <tr><th>분수 p/q</th><th>값</th><th>평균율과의 오차</th><th>복잡도 p×q</th></tr>
+        ${rows}
+      </table>
+      <div style="margin-top:14px">
+        <canvas id="waveIv" style="height:150px"></canvas>
+        <div class="wavecap">두 사인파(옅은 색)와 그 합(흰색) — 가로 전체가 정확히 한 주기:
+          낮은 음 <b>${sel.q}회</b> + 높은 음 <b>${sel.p}회</b> 진동 후 반복
+          (비율 ${sel.p}/${sel.q}, 오차 ${sel.err >= 0 ? '+' : ''}${sel.err.toFixed(1)}¢)</div>
+      </div>
+    </div>
+  </div>`;
+
+  drawWave(document.getElementById('waveIv'), [sel.q, sel.p]);
+  document.getElementById('btnET').onclick = () => playFreqs([fLo, fHi]);
+  document.getElementById('btnJI').onclick = () => playFreqs([fLo, fLo * sel.p / sel.q]);
+  resEl.querySelectorAll('tr.clickable').forEach(tr => tr.onclick = () => {
+    const p = +tr.dataset.p, q = +tr.dataset.q;
+    chosenPQ = { p, q, err: centsErr(p, q, ratio) };
+    renderInterval(true);
+  });
+}
+renderInterval();
+
+/* ───────────────────────── 12음정 요약표 ───────────────────────── */
+(function buildSummary() {
+  const tbl = document.getElementById('summaryTable');
+  let html = `<tr><th>반음 k</th><th>음정</th><th>2^(k/12)</th><th>연분수</th>
+              <th>최적 유리수</th><th>오차</th><th>p×q</th><th>협화도</th></tr>`;
+  for (let k = 1; k <= 12; k++) {
+    const r = Math.pow(2, k / 12);
+    const cf = contFrac(r);
+    const b = bestRatio(r);
+    const [name, cls] = CONSONANCE[k];
+    html += `<tr${k === 6 ? ' style="background:#231419"' : ''}>
+      <td>${k}</td><td style="font-family:inherit">${INTERVAL_NAME[k]}</td>
+      <td>${r.toFixed(4)}</td><td>${cfBracket(cf, 5)}</td>
+      <td><b>${b.p}/${b.q}</b></td>
+      <td>${b.err >= 0 ? '+' : ''}${b.err.toFixed(1)}¢</td><td>${b.p * b.q}</td>
+      <td style="font-family:inherit"><span class="verdict ${cls}" style="margin:0">${name}</span></td></tr>`;
+  }
+  tbl.innerHTML = html;
+})();
+
+/* ───────────────────────── 화음 카드 ───────────────────────── */
+(function buildChords() {
+  const grid = document.getElementById('chordGrid');
+  CHORDS.forEach((ch, ci) => {
+    const { ints } = chordIntegers(ch.semis);
+    const notes = ch.semis.map(s => NOTE_KO[s % 12] + (s >= 12 ? '′' : '')).join(' · ');
+    // 모든 음 쌍의 배수 관계
+    const pairs = [];
+    for (let i = 0; i < ch.semis.length; i++)
+      for (let j = i + 1; j < ch.semis.length; j++) {
+        const s = ch.semis[j] - ch.semis[i];
+        const b = bestRatio(Math.pow(2, s / 12));
+        pairs.push(`<span class="pair">${NOTE_KO[ch.semis[i] % 12]}→${NOTE_KO[ch.semis[j] % 12]}
+          <b>${b.p}/${b.q}</b> <span style="opacity:.7">(${INTERVAL_NAME[s] || s + '반음'},
+          ${b.err >= 0 ? '+' : ''}${b.err.toFixed(1)}¢)</span></span>`);
+      }
+    const card = document.createElement('div');
+    card.className = 'chord';
+    card.innerHTML = `
+      <h3>${ch.ko}<small>${ch.en}</small></h3>
+      <div class="notesline">구성음: ${notes} <span style="opacity:.6">(반음 ${ch.semis.join(', ')})</span></div>
+      <div class="ints">${ints.join(' : ')}</div>
+      <div class="pairs">${pairs.join('')}</div>
+      <canvas id="cv${ci}" style="height:110px"></canvas>
+      <div class="wavecap">가로 전체 = 한 주기 (근음 ${ints[0]}회 진동 후 전체 파형 반복)</div>
+      <div class="btns">
+        <button class="play" data-mode="et">▶ 평균율</button>
+        <button class="play" data-mode="ji">▶ 순정비 ${ints.join(':')}</button>
+      </div>`;
+    grid.appendChild(card);
+    drawWave(card.querySelector('canvas'), ints);
+    card.querySelector('[data-mode="et"]').onclick = () =>
+      playFreqs(ch.semis.map(s => BASE * Math.pow(2, s / 12)), 2.2);
+    card.querySelector('[data-mode="ji"]').onclick = () =>
+      playFreqs(ints.map(n => BASE * n / ints[0]), 2.2);
+  });
+})();
+</script>
+</body>
+</html>
