@@ -171,7 +171,15 @@
     분수가 단순할수록 두 파형이 빨리 다시 만나며, 음악 이론의 전통적 협화도 분류와 거의 일치합니다.</p>
 </div>
 
-<h2><span class="no">5</span>다른 음계들 — 옥타브를 꼭 12등분해야 할까?</h2>
+<h2><span class="no">5</span>화음 도감 — 구성음 사이의 정수비와 파형</h2>
+<p style="color:var(--dim);font-size:.92rem">각 화음의 구성음을 유리수로 근사한 뒤 통분하면 화음 전체가 하나의
+   <b>정수비</b>가 됩니다(장3화음 = 4:5:6). 파형은 그 정수비 사인파들의 합으로, 캔버스 가로 전체가 정확히 <b>한 주기</b>입니다.
+   정수가 작을수록 근음이 몇 번만 진동해도 패턴이 반복되어 안정적으로 들립니다.
+   각 음 쌍의 배수 관계(예: 5/4, 6/5, 3/2)도 칩으로 표시했습니다. 화음을 골라 보세요.</p>
+<div class="presets" id="chordPills" style="justify-content:flex-start"></div>
+<div class="chordgrid" id="chordGrid"></div>
+
+<h2><span class="no">6</span>다른 음계들 — 옥타브를 꼭 12등분해야 할까?</h2>
 <div class="card">
   <p style="color:var(--dim);font-size:.92rem;margin-top:0">옥타브를 N등분하는 평균율을 <b>N-EDO</b>라 부릅니다.
      좋은 음계란 적은 음 개수로 3/2, 5/4 같은 <b>단순한 유리수를 동시에 잘 근사</b>하는 음계입니다.
@@ -186,7 +194,7 @@
   <div style="overflow-x:auto;max-height:430px"><table id="edoSteps"></table></div>
 </div>
 
-<h2><span class="no">6</span>왜 하필 12인가 — 증명할 수 있을까?</h2>
+<h2><span class="no">7</span>왜 하필 12인가 — 증명할 수 있을까?</h2>
 <div class="card">
   <h3>① 음계 찾기 = 무리수 근사 게임</h3>
   <p>N등분 음계가 쓸 만한 완전5도를 가지려면 어떤 단계 k에서
@@ -222,21 +230,13 @@
      가성비 B(N) = N × E(N) <span style="color:var(--dim)">(음 개수만큼 패널티)</span></p>
   <p style="font-size:.88rem;color:var(--dim)">B(N)이 낮을수록 “음 하나당 근사 효율”이 좋은 음계입니다.
      N을 곱하는 것은 위 정리의 |q·α − p| (= q × 오차)와 같은 정신 — 디오판토스 근사에서 표준적인 방식입니다.
-     어떤 순정비까지 욕심내는지(리미트)에 따라 승자가 바뀝니다. 막대를 클릭하면 위 5장에서 그 음계를 분석합니다.</p>
+     어떤 순정비까지 욕심내는지(리미트)에 따라 승자가 바뀝니다. 막대를 클릭하면 위 6장에서 그 음계를 분석합니다.</p>
   <div class="presets" id="limitBtns" style="justify-content:flex-start;margin-bottom:6px"></div>
   <canvas id="badnessChart" style="height:230px;cursor:pointer"></canvas>
   <div class="wavecap" id="badnessCap"></div>
   <div style="overflow-x:auto;margin-top:12px"><table id="badnessTable"></table></div>
   <p id="badnessSummary" style="font-size:.9rem;margin-top:10px"></p>
 </div>
-
-<h2><span class="no">7</span>화음 도감 — 구성음 사이의 정수비와 파형</h2>
-<p style="color:var(--dim);font-size:.92rem">각 화음의 구성음을 유리수로 근사한 뒤 통분하면 화음 전체가 하나의
-   <b>정수비</b>가 됩니다(장3화음 = 4:5:6). 파형은 그 정수비 사인파들의 합으로, 캔버스 가로 전체가 정확히 <b>한 주기</b>입니다.
-   정수가 작을수록 근음이 몇 번만 진동해도 패턴이 반복되어 안정적으로 들립니다.
-   각 음 쌍의 배수 관계(예: 5/4, 6/5, 3/2)도 칩으로 표시했습니다. 화음을 골라 보세요.</p>
-<div class="presets" id="chordPills" style="justify-content:flex-start"></div>
-<div class="chordgrid" id="chordGrid"></div>
 
 <footer>
   평균율 · 연분수 · 협화 — 수학으로 듣는 음악 | 사인파 재생은 Web Audio API 사용
@@ -576,7 +576,7 @@ function renderEDO(n) {
     b.classList.toggle('active', +b.dataset.n === n));
   const known = EDOS.find(e => e.n === n);
   document.getElementById('edoDesc').textContent =
-    known ? known.desc : n + '-EDO — 옥타브를 ' + n + '등분한 음계입니다. 6장의 차트에서 선택했습니다.';
+    known ? known.desc : n + '-EDO — 옥타브를 ' + n + '등분한 음계입니다. 7장의 차트에서 선택했습니다.';
   const step = 1200 / n;
   // 주요 순정비 적중표
   let t1 = `<tr><th>순정비</th><th>이름</th><th>가까운 단계</th><th>단계 값</th><th>오차</th><th>평가</th></tr>`;
@@ -695,7 +695,7 @@ function renderBadness() {
   };
 
   document.getElementById('badnessCap').textContent =
-    '가성비 B(N) = N × RMS오차, N = 2…60 (낮을수록 좋음 · 주황 = 그때까지의 신기록 · 막대 클릭 = 5장에서 분석)';
+    '가성비 B(N) = N × RMS오차, N = 2…60 (낮을수록 좋음 · 주황 = 그때까지의 신기록 · 막대 클릭 = 6장에서 분석)';
   const top = [...data].sort((a, b) => a.B - b.B).slice(0, 8);
   let t = `<tr><th>순위</th><th>N</th><th>RMS 오차</th><th>가성비 B(N)</th><th>비고</th></tr>`;
   top.forEach((d, i) => {
