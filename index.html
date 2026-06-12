@@ -186,7 +186,51 @@
   <div style="overflow-x:auto;max-height:430px"><table id="edoSteps"></table></div>
 </div>
 
-<h2><span class="no">6</span>화음 도감 — 구성음 사이의 정수비와 파형</h2>
+<h2><span class="no">6</span>왜 하필 12인가 — 증명할 수 있을까?</h2>
+<div class="card">
+  <h3>① 음계 찾기 = 무리수 근사 게임</h3>
+  <p>N등분 음계가 쓸 만한 완전5도를 가지려면 어떤 단계 k에서
+     <span class="math">2<sup>k/N</sup> ≈ 3/2</span>여야 합니다. 양변에 log₂를 취하면</p>
+  <p style="text-align:center" class="math">k/N ≈ log₂(3/2) = 0.584962…</p>
+  <p>즉 <b>좋은 음계 찾기는 무리수 log₂(3/2)를 분모 작은 분수로 근사하는 문제</b> —
+     2장에서 음정 하나에 했던 것과 정확히 같은 게임을 음계 전체에 하는 것입니다.
+     그리고 그 게임의 정답을 내놓는 기계가 바로 연분수입니다:</p>
+  <div class="cfbox" id="cfLog32"></div>
+  <p style="margin-top:14px">convergent의 <b>분모</b>들을 읽어보세요: 옥타브를
+     <b>2, 5, 12, 41, 53</b>등분하라고 말하고 있습니다.
+     5등분(가믈란 슬렌드로), 12등분(표준), 53등분(메르카토르·터키 코마) —
+     역사에 실제로 등장한 음계들이 연분수 전개에서 그대로 튀어나옵니다.</p>
+  <div class="callout" style="border-left-color:var(--good);background:#12201a;margin-top:14px">
+    <h3 style="color:var(--good)">증명된 사실: 최량근사 정리</h3>
+    <p>연분수의 convergent p/q는 <b>“오차 × 분모”</b> 척도
+       <span class="math">|q·α − p|</span> 기준으로 분모 q 이하의 모든 분수 중 최선이며,
+       다음 convergent가 나오기 전까지는 그 어떤 분수도 이를 깨지 못합니다.
+       7/12가 convergent이고 다음이 24/41이므로:</p>
+    <p><b>2 ≤ N ≤ 40인 어떤 N-EDO도 음 개수 대비 12-EDO보다 좋은 완전5도를 만들 수 없다.</b>
+       이것은 취향이나 관습이 아니라 정리(theorem)입니다.</p>
+    <p style="font-size:.86rem;color:var(--dim)">주의 깊게 보면: 단순 오차만 재면 29-EDO의 5도(+1.5¢)가
+       12-EDO(−2.0¢)보다 아주 약간 정확합니다. 하지만 29개 음이라는 비용을 세는 순간 12가 이깁니다.
+       12를 진짜로 넘어서는 다음 후보는 41, 그다음 53 — 음이 너무 많아 악기와 기보가 감당하기 어렵죠.</p>
+  </div>
+</div>
+
+<div class="card" style="margin-top:14px">
+  <h3>② 척도 만들기 — 음계의 “유리수 근사력”을 숫자 하나로</h3>
+  <p>5도 하나가 아니라 여러 순정비를 동시에 보려면 척도를 직접 정의하면 됩니다:</p>
+  <p class="math" style="background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px 14px">
+     오차 E(N) = 목표 순정비들의 RMS 센트 오차 &nbsp;&nbsp;|&nbsp;&nbsp;
+     가성비 B(N) = N × E(N) <span style="color:var(--dim)">(음 개수만큼 패널티)</span></p>
+  <p style="font-size:.88rem;color:var(--dim)">B(N)이 낮을수록 “음 하나당 근사 효율”이 좋은 음계입니다.
+     N을 곱하는 것은 위 정리의 |q·α − p| (= q × 오차)와 같은 정신 — 디오판토스 근사에서 표준적인 방식입니다.
+     어떤 순정비까지 욕심내는지(리미트)에 따라 승자가 바뀝니다. 막대를 클릭하면 위 5장에서 그 음계를 분석합니다.</p>
+  <div class="presets" id="limitBtns" style="justify-content:flex-start;margin-bottom:6px"></div>
+  <canvas id="badnessChart" style="height:230px;cursor:pointer"></canvas>
+  <div class="wavecap" id="badnessCap"></div>
+  <div style="overflow-x:auto;margin-top:12px"><table id="badnessTable"></table></div>
+  <p id="badnessSummary" style="font-size:.9rem;margin-top:10px"></p>
+</div>
+
+<h2><span class="no">7</span>화음 도감 — 구성음 사이의 정수비와 파형</h2>
 <p style="color:var(--dim);font-size:.92rem">각 화음의 구성음을 유리수로 근사한 뒤 통분하면 화음 전체가 하나의
    <b>정수비</b>가 됩니다(장3화음 = 4:5:6). 파형은 그 정수비 사인파들의 합으로, 캔버스 가로 전체가 정확히 <b>한 주기</b>입니다.
    정수가 작을수록 근음이 몇 번만 진동해도 패턴이 반복되어 안정적으로 들립니다.
@@ -348,6 +392,10 @@ function drawWave(canvas, ints) {
     c.stroke();
   };
   draw();
+  registerDraw(canvas, draw);
+}
+function registerDraw(canvas, draw) {
+  redrawers = redrawers.filter(r => r.canvas !== canvas);
   redrawers.push({ canvas, draw });
 }
 window.addEventListener('resize', () => {
@@ -526,7 +574,9 @@ function edoVerdict(absErr) {
 function renderEDO(n) {
   document.querySelectorAll('#edoBtns button').forEach(b =>
     b.classList.toggle('active', +b.dataset.n === n));
-  document.getElementById('edoDesc').textContent = EDOS.find(e => e.n === n).desc;
+  const known = EDOS.find(e => e.n === n);
+  document.getElementById('edoDesc').textContent =
+    known ? known.desc : n + '-EDO — 옥타브를 ' + n + '등분한 음계입니다. 6장의 차트에서 선택했습니다.';
   const step = 1200 / n;
   // 주요 순정비 적중표
   let t1 = `<tr><th>순정비</th><th>이름</th><th>가까운 단계</th><th>단계 값</th><th>오차</th><th>평가</th></tr>`;
@@ -563,6 +613,113 @@ function renderEDO(n) {
     wrap.appendChild(b);
   });
   renderEDO(12);
+})();
+
+/* ───────────────────── 왜 12인가: 연분수 증명 + 가성비 척도 ───────────────────── */
+(function buildCfLog32() {
+  const alpha = Math.log2(1.5);
+  const cf = contFrac(alpha, 8);
+  const cv = convergents(cf).filter(([p, q]) => q > 1 && q <= 60);
+  const chips = cv.map(([p, q]) =>
+    `<span class="pair" style="font-size:.95rem;padding:4px 10px">${p}/<b style="color:var(--accent2)">${q}</b></span>`).join(' ');
+  document.getElementById('cfLog32').innerHTML =
+    `log₂(3/2) = ${cfHTML(cf, 0, 5)}<br><br>= ${cfBracket(cf)}<br><br>convergents: ${chips} …`;
+})();
+
+const LIMITS = {
+  3: { label: '3-리미트 (5도·4도만)', set: [[3,2],[4,3]] },
+  5: { label: '5-리미트 (+3도·6도)', set: [[3,2],[4,3],[5,4],[6,5],[5,3],[8,5]] },
+  7: { label: '7-리미트 (+배음 7)', set: [[3,2],[4,3],[5,4],[6,5],[5,3],[8,5],[7,4],[7,5],[7,6]] },
+};
+const EDO_NOTES = { 5:'가믈란 슬렌드로', 7:'태국 음계', 12:'표준 서양 음계', 19:'살리나스',
+  24:'아랍 쿼터톤', 29:'12보다 정확한 5도', 31:'하위헌스·가온음률', 41:'log₂(3/2)의 convergent',
+  53:'메르카토르·터키 코마' };
+let curLimit = 5;
+
+function edoScores(limit) {
+  const set = LIMITS[limit].set, res = [];
+  for (let N = 2; N <= 60; N++) {
+    const step = 1200 / N;
+    const errs = set.map(([p, q]) => {
+      const t = cents(p / q);
+      return Math.round(t / step) * step - t;
+    });
+    const rms = Math.sqrt(errs.reduce((s, e) => s + e * e, 0) / errs.length);
+    res.push({ N, rms, B: N * rms });
+  }
+  return res;
+}
+
+function renderBadness() {
+  document.querySelectorAll('#limitBtns button').forEach(b =>
+    b.classList.toggle('active', +b.dataset.l === curLimit));
+  const data = edoScores(curLimit);
+  // 왼쪽부터 신기록을 세운 N (running minimum)
+  let best = Infinity; const records = new Set();
+  data.forEach(d => { if (d.B < best) { best = d.B; records.add(d.N); } });
+
+  const canvas = document.getElementById('badnessChart');
+  const draw = () => {
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth, h = canvas.clientHeight || 230;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    const c = canvas.getContext('2d'); c.scale(dpr, dpr);
+    c.clearRect(0, 0, w, h);
+    const padB = 24, padT = 18, maxB = Math.max(...data.map(d => d.B));
+    const bw = w / data.length;
+    data.forEach((d, i) => {
+      const bh = (h - padB - padT) * d.B / maxB;
+      const x = i * bw, y = h - padB - bh;
+      c.fillStyle = records.has(d.N) ? 'rgba(255,180,84,.95)' : 'rgba(61,95,214,.55)';
+      c.fillRect(x + 1, y, bw - 2, bh);
+      if (records.has(d.N)) {
+        c.fillStyle = '#ffb454'; c.font = '700 11px ui-monospace,monospace'; c.textAlign = 'center';
+        c.fillText(d.N, x + bw / 2, y - 5);
+      }
+    });
+    c.fillStyle = '#8b96a8'; c.font = '10px ui-monospace,monospace'; c.textAlign = 'center';
+    for (let N = 10; N <= 60; N += 10) {
+      const i = N - 2;
+      c.fillText(N, i * bw + bw / 2, h - 8);
+    }
+  };
+  draw();
+  registerDraw(canvas, draw);
+  canvas.onclick = e => {
+    const rect = canvas.getBoundingClientRect();
+    const i = Math.floor((e.clientX - rect.left) / rect.width * data.length);
+    if (data[i]) {
+      renderEDO(data[i].N);
+      document.getElementById('edoDesc').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  document.getElementById('badnessCap').textContent =
+    '가성비 B(N) = N × RMS오차, N = 2…60 (낮을수록 좋음 · 주황 = 그때까지의 신기록 · 막대 클릭 = 5장에서 분석)';
+  const top = [...data].sort((a, b) => a.B - b.B).slice(0, 8);
+  let t = `<tr><th>순위</th><th>N</th><th>RMS 오차</th><th>가성비 B(N)</th><th>비고</th></tr>`;
+  top.forEach((d, i) => {
+    t += `<tr><td>${i + 1}</td><td><b>${d.N}</b></td><td>${d.rms.toFixed(1)}¢</td>
+      <td>${d.B.toFixed(0)}</td>
+      <td style="font-family:inherit;text-align:left">${EDO_NOTES[d.N] || ''}</td></tr>`;
+  });
+  document.getElementById('badnessTable').innerHTML = t;
+  const recArr = [...records];
+  document.getElementById('badnessSummary').innerHTML =
+    `이 리미트에서 신기록 행진: <b class="mono">${recArr.join(' → ')}</b>. ` +
+    `12는 세 리미트 모두에서 신기록 보유자입니다 — 12를 이기려면 5도만 볼 때 41개,
+     3도까지 보면 19개, 배음 7까지 보면 19개의 음이 필요합니다.
+     <b>“12개면 충분히 좋고, 그보다 적게는 안 된다”</b>가 수학적으로 성립하는 셈입니다.`;
+}
+(function buildLimitBtns() {
+  const wrap = document.getElementById('limitBtns');
+  Object.entries(LIMITS).forEach(([l, v]) => {
+    const b = document.createElement('button');
+    b.textContent = v.label; b.dataset.l = l;
+    b.onclick = () => { curLimit = +l; renderBadness(); };
+    wrap.appendChild(b);
+  });
+  renderBadness();
 })();
 
 /* ───────────────────────── 화음 카드 ───────────────────────── */
