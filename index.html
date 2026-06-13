@@ -59,6 +59,8 @@
   button.play{background:linear-gradient(135deg,#2b3a6b,#1e2a4f);border-color:#3d5fd6}
   button.play:hover{color:#fff;border-color:var(--accent)}
   button.active{border-color:var(--accent2);color:var(--accent2);background:#2a2316;font-weight:700}
+  button:disabled{opacity:.38;cursor:not-allowed;border-color:var(--border);color:var(--dim);background:var(--panel2)}
+  button:disabled:hover{border-color:var(--border);color:var(--dim)}
   input[type=range]{accent-color:var(--accent);margin:14px 0 6px}
 
   /* 결과 패널 */
@@ -450,7 +452,28 @@ function chordIntegers(semis) {
 /* ───────────────────────── 오디오 ───────────────────────── */
 let actx = null, richWave = null;
 const HARMONIC_AMPS = [1, 0.8, 0.64, 0.512, 0.41, 0.328]; // 배음 6개, 0.8^(n-1)
+
+/* ── 재생 잠금: 한 번에 하나만 재생 (재생 중에는 모든 ▶ 버튼 비활성) ── */
+let PLAYING = false, playTimer = null;
+function lockPlay(keep) {
+  PLAYING = true;
+  document.querySelectorAll('button.play').forEach(b => { if (!keep || keep.indexOf(b) < 0) b.disabled = true; });
+}
+function unlockPlay() {
+  PLAYING = false;
+  if (playTimer) { clearTimeout(playTimer); playTimer = null; }
+  document.querySelectorAll('button.play').forEach(b => b.disabled = false);
+}
+function oneShot(durSec) { // 일회성 재생: 허용되면 true(자동 해제 예약)
+  if (PLAYING) return false;
+  lockPlay();
+  playTimer = setTimeout(unlockPlay, durSec * 1000 + 150);
+  return true;
+}
+function lockContinuous(stopBtn) { lockPlay(stopBtn ? [stopBtn] : []); } // 드론 등 지속 재생
+
 function playFreqs(freqs, dur = 1.8, rich = false) {
+  if (!oneShot(dur)) return;
   if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
   if (actx.state === 'suspended') actx.resume();
   if (rich && !richWave) {
@@ -1124,8 +1147,10 @@ function renderBadness() {
       drone.osc.stop(actx.currentTime + 0.4);
       drone = null;
       btn.textContent = '▶ 드론 시작 (도, 130.8 Hz)';
+      unlockPlay();
       return;
     }
+    if (PLAYING) return; // 다른 소리가 재생 중이면 드론 시작 안 함
     if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
     if (actx.state === 'suspended') actx.resume();
     const osc = actx.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = FD;
@@ -1141,6 +1166,7 @@ function renderBadness() {
     drone = { osc, bp1, bp2, wet, master };
     setFormant(+slider.value);
     btn.textContent = '■ 드론 정지';
+    lockContinuous(btn); // 재생 중: 드론 정지 버튼만 남기고 모두 비활성
   };
 
   function renderLabel() {
